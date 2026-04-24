@@ -10,7 +10,7 @@ export function Header({ currentPath }: { currentPath: string }) {
   return (
     <nav className="flex items-center space-x-4 lg:space-x-6 mx-6 h-16">
       <a href="/" className="text-sm font-bold leading-none text-foreground">
-        SaaS Admin Template
+        AdB
       </a>
       {links.map((link) => (
         <a

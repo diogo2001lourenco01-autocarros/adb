@@ -1,50 +1,183 @@
 ---
-import { buttonVariants } from '@/components/ui/button';
-import { Github, LayoutDashboard } from 'lucide-react';
 import '@/styles/globals.css'
-
-const repoLink = 'https://github.com/cloudflare/templates/tree/main/saas-admin-template';
 ---
 
-<script is:inline>
-  const getThemePreference = () => {
-    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-      return localStorage.getItem('theme');
-    }
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
-  const isDark = getThemePreference() === 'dark';
-  document.documentElement.classList[isDark ? 'add' : 'remove']('dark');
- 
-  if (typeof localStorage !== 'undefined') {
-    const observer = new MutationObserver(() => {
-      const isDark = document.documentElement.classList.contains('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  }
-</script>
-
 <!doctype html>
-<html lang="en">
+<html lang="pt">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <title>SaaS Admin Template</title>
+    <title>AdB - Manutenção</title>
+    <style>
+      @font-face {
+        font-family: 'DINBlack';
+        src: url("/static/fonts/DINBlack.otf") format('opentype');
+        font-weight: 900;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: 'DINMedium';
+        src: url("/static/fonts/DINMedium.ttf") format('truetype');
+        font-weight: 500;
+        font-style: normal;
+      }
+
+      *, *::before, *::after { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #374150;
+        color: white;
+        font-family: 'DINMedium', Helvetica, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        overflow: hidden;
+      }
+
+      /* NAV */
+      nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 32px;
+        height: 52px;
+        background-color: rgba(30, 37, 48, 0.85);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+        z-index: 100;
+      }
+
+      nav a {
+        text-decoration: none;
+        font-family: 'DINMedium', Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        color: rgba(255,255,255,0.6);
+        padding: 6px 14px;
+        border-radius: 6px;
+        transition: background 0.15s, color 0.15s;
+      }
+
+      nav a:first-child {
+        font-family: 'DINBlack', Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        color: white;
+        margin-right: 12px;
+        padding-left: 0;
+        background: none !important;
+      }
+
+      nav a:hover {
+        background: rgba(255,255,255,0.08);
+        color: white;
+      }
+
+      /* CONTEÚDO */
+      .logo-adb {
+        width: 280px;
+        height: auto;
+        margin-bottom: 60px;
+      }
+
+      .intro-txt {
+        font-family: 'DINMedium', sans-serif;
+        font-size: 19px;
+        opacity: 0.8;
+        margin-bottom: 15px;
+      }
+
+      .historia-txt {
+        font-family: 'DINBlack', sans-serif;
+        font-size: 34px;
+        color: #027cb7;
+        max-width: 850px;
+        line-height: 1.3;
+        margin-bottom: 70px;
+        padding: 0 30px;
+      }
+
+      .social-container {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 30px;
+      }
+
+      .siga-nos-label {
+        font-family: 'DINBlack', sans-serif;
+        font-size: 13px;
+        color: rgba(255,255,255,0.7);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .social-link {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: white;
+        font-family: 'DINMedium', sans-serif;
+        font-size: 14px;
+        transition: opacity 0.2s;
+      }
+
+      .social-link:hover { opacity: 0.7; }
+
+      .icon-svg {
+        width: 22px;
+        height: 22px;
+        margin-right: 12px;
+        fill: white;
+      }
+
+      .refresh-msg {
+        margin-top: 50px;
+        font-family: 'DINMedium', sans-serif;
+        font-size: 11px;
+        color: rgba(255,255,255,0.3);
+      }
+    </style>
   </head>
   <body>
-    <div class="flex flex-col items-center justify-center gap-4 py-20 px-8">
-      <h1 class="text-5xl font-bold">SaaS Admin Template</h1>
-      <p class="text-xl text-muted-foreground">Manage a SaaS application - customers, subscriptions - using Cloudflare Workers and D1.</p>
-      <div class="flex flex gap-4 mt-4">
-        <a class={buttonVariants()} href="/admin">
-          <LayoutDashboard /> Go to admin
-        </a>
-        <a class={buttonVariants({ variant: 'outline' })} href={repoLink}>
-          <Github /> View on GitHub
-        </a>
+
+    <nav>
+      <a href="/">AdB</a>
+      <a href="/admin">Dashboard</a>
+      <a href="/admin/customers">Clientes</a>
+      <a href="/admin/subscriptions">Subscrições</a>
+    </nav>
+
+    <img src="/static/images/adb.svg" alt="Autocarros de Braga" class="logo-adb">
+
+    <div class="intro-txt">Em breve, vai ver neste site que...</div>
+    <div class="historia-txt">A linha 99 foi inaugurada a 22 de setembro de 2025.</div>
+
+    <div class="social-container">
+      <span class="siga-nos-label">Siga-nos</span>
+
+      <a href="https://www.facebook.com/AutocarrosDeBraga" target="_blank" class="social-link">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path></svg>
+        Facebook
+      </a>
+
+      <a href="https://www.instagram.com/autocarrosdebragaadb/" target="_blank" class="social-link">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.266.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+        Instagram
+      </a>
     </div>
+
+    <div class="refresh-msg">Faça refresh e descubra uma nova curiosidade.</div>
+
   </body>
 </html>
