@@ -111,12 +111,12 @@
 
       /* Line row */
       .line-row {
-        padding:8px 18px; border-bottom:1px solid rgba(255,255,255,.04);
-        display:flex; gap:12px; align-items:flex-start;
+        padding:6px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+        display:flex; gap:10px; align-items:flex-start;
       }
       .line-row:last-child { border-bottom:none; }
       .lr-badge {
-        flex-shrink:0; margin-top:1px;
+        flex-shrink:0; margin-top:2px;
         font-family:'DINBlack'; font-size:12px; letter-spacing:.3px;
         background:#027cb7; color:#fff; border-radius:6px;
         padding:3px 9px; min-width:50px; text-align:center;
@@ -125,9 +125,9 @@
       .lr-badge.unallocated { background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); }
       .lr-right { flex:1; min-width:0; }
       .lr-count { font-size:10px; color:rgba(255,255,255,.3);
-        text-transform:uppercase; letter-spacing:.5px; margin-bottom:5px; }
-      .lr-buses { font-size:13px; color:rgba(255,255,255,.75); line-height:1.6;
-        word-break:break-all; }
+        text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+      .lr-buses { font-size:13px; color:rgba(255,255,255,.75); line-height:1.35;
+        word-break:break-word; }
       .lr-buses .bus-id { cursor:pointer; transition:color .15s; }
       .lr-buses .bus-id:hover { color:#fff; }
       .lr-buses .bus-id.live { color:#3db8f5; font-family:'DINBlack'; }
