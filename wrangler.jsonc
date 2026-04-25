@@ -13,6 +13,10 @@
   "vars": {
     "EXAMPLE_VALUE": "example_value"
   },
+  "routes": [
+    { "pattern": "autocarrosdebraga.pt/*", "zone_name": "autocarrosdebraga.pt" },
+    { "pattern": "www.autocarrosdebraga.pt/*", "zone_name": "autocarrosdebraga.pt" }
+  ],
   "d1_databases": [
     {
       "binding": "DB",
