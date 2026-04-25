@@ -5,20 +5,28 @@ export async function GET({ locals, url }: APIContext) {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
   const date = url.searchParams.get('date') || today;
 
-  // Use the latest known line_id per vehicle (a vehicle that gains a line during
-  // the day is moved out of "unallocated" into its real line)
+  // All distinct (bus, line) pairs seen during the day.
+  // A bus appears once per line it operated on, so a vehicle that switched lines
+  // shows up under every line it served.
+  // "Unallocated" only contains buses that never received a line assignment today.
   const rows = await env.DB.prepare(`
-    SELECT bus_id, line_id, first_seen, last_seen FROM (
-      SELECT
-        bus_id,
-        line_id,
-        MIN(seen_at) OVER (PARTITION BY bus_id) AS first_seen,
-        MAX(seen_at) OVER (PARTITION BY bus_id) AS last_seen,
-        ROW_NUMBER()  OVER (PARTITION BY bus_id ORDER BY seen_at DESC) AS rn
-      FROM vehicle_sightings WHERE date = ?
-    ) WHERE rn = 1
+    SELECT bus_id, line_id, MIN(seen_at) AS first_seen, MAX(seen_at) AS last_seen
+    FROM vehicle_sightings
+    WHERE date = ? AND line_id IS NOT NULL
+    GROUP BY bus_id, line_id
+
+    UNION ALL
+
+    SELECT bus_id, NULL AS line_id, MIN(seen_at) AS first_seen, MAX(seen_at) AS last_seen
+    FROM vehicle_sightings
+    WHERE date = ?
+      AND bus_id NOT IN (
+        SELECT DISTINCT bus_id FROM vehicle_sightings WHERE date = ? AND line_id IS NOT NULL
+      )
+    GROUP BY bus_id
+
     ORDER BY line_id NULLS LAST, bus_id
-  `).bind(date).all();
+  `).bind(date, date, date).all();
 
   const byLine: Record<string, { busId: string; firstSeen: number; lastSeen: number }[]> = {};
 
