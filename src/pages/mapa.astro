@@ -7,14 +7,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>AdB – Mapa Live</title>
-    <link href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css" rel="stylesheet">
-    <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <style>
       @font-face { font-family:'DINBlack';  src:url('/static/fonts/DINBlack.otf')  format('opentype'); font-weight:900; }
       @font-face { font-family:'DINMedium'; src:url('/static/fonts/DINMedium.ttf') format('truetype'); font-weight:500; }
 
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
       html, body { height: 100%; overflow: hidden; background: #0f1117; color: #fff;
         font-family: 'DINMedium', Helvetica, Arial, sans-serif; }
 
@@ -27,18 +26,17 @@
       }
       nav a { text-decoration: none; font-size: 13px; color: rgba(255,255,255,0.55);
         padding: 5px 12px; border-radius: 6px; transition: background .15s, color .15s; }
-      nav a:first-child { font-family:'DINBlack'; font-size:14px; color:#fff;
-        margin-right:12px; padding-left:0; }
+      nav a:first-child { font-family:'DINBlack'; font-size:14px; color:#fff; margin-right:12px; padding-left:0; }
       nav a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+      nav a.active { color: #fff; }
       #live-dot { width:8px; height:8px; border-radius:50%; background:#22c55e;
         display:inline-block; margin-left:auto; animation: pulse 2s infinite; }
+      #live-dot.off { background:#6b7280; animation:none; }
       #live-count { font-size:12px; color:rgba(255,255,255,0.5); margin-left:6px; }
       @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
       /* LAYOUT */
-      .layout {
-        display: flex; height: calc(100vh - 52px); margin-top: 52px;
-      }
+      .layout { display: flex; height: calc(100vh - 52px); margin-top: 52px; }
 
       /* MAP */
       .map-wrap { flex: 1; position: relative; min-width: 0; }
@@ -48,68 +46,61 @@
       .maplibregl-popup-content {
         background: #1a1e2a; color: #fff; border-radius: 10px;
         padding: 12px 16px; font-family: 'DINMedium', sans-serif;
-        font-size: 13px; border: 1px solid rgba(255,255,255,0.1);
-        min-width: 160px;
+        font-size: 13px; border: 1px solid rgba(255,255,255,0.1); min-width: 160px;
       }
       .maplibregl-popup-tip { border-top-color: #1a1e2a !important; }
       .popup-line { font-family:'DINBlack'; font-size:18px; color:#027cb7; }
-      .popup-bus { font-size:13px; color:rgba(255,255,255,0.7); margin-top:2px; }
+      .popup-bus  { font-size:13px; color:rgba(255,255,255,0.7); margin-top:2px; }
       .popup-time { font-size:11px; color:rgba(255,255,255,0.4); margin-top:8px; }
       .maplibregl-popup-close-button { color: rgba(255,255,255,0.4); font-size:16px; }
 
-      /* ALLOCATION PANEL */
+      /* PANEL */
       .alloc-panel {
-        width: 320px; flex-shrink: 0; display: flex; flex-direction: column;
-        background: #13161f; border-left: 1px solid rgba(255,255,255,0.07);
-        overflow: hidden;
+        width: 300px; flex-shrink: 0; display: flex; flex-direction: column;
+        background: #13161f; border-left: 1px solid rgba(255,255,255,0.07); overflow: hidden;
       }
-      .alloc-header {
-        padding: 16px 20px 12px; border-bottom: 1px solid rgba(255,255,255,0.07);
-        display: flex; align-items: baseline; gap: 8px;
-      }
-      .alloc-header h2 { font-family:'DINBlack'; font-size:15px; color:#fff; }
-      .alloc-date { font-size:11px; color:rgba(255,255,255,0.35); }
-      .alloc-body { flex: 1; overflow-y: auto; padding: 12px 0; }
+      .alloc-header { padding: 14px 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+      .alloc-header-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+      .alloc-header h2 { font-family:'DINBlack'; font-size:14px; color:#fff; }
+      .alloc-body { flex: 1; overflow-y: auto; padding: 10px 0; }
       .alloc-body::-webkit-scrollbar { width: 4px; }
-      .alloc-body::-webkit-scrollbar-track { background: transparent; }
       .alloc-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius:4px; }
 
-      /* LINE GROUP */
-      .line-group { padding: 8px 20px; }
-      .line-header {
-        display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+      /* DATEPICKER */
+      #date-picker {
+        width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 7px; padding: 6px 10px; color: #fff; font-family:'DINMedium'; font-size:12px;
+        cursor: pointer; outline: none;
       }
+      #date-picker::-webkit-calendar-picker-indicator { filter: invert(1); opacity:.5; cursor:pointer; }
+      #date-picker:focus { border-color: #027cb7; }
+
+      /* LINE GROUPS */
+      .line-group { padding: 7px 18px; }
+      .line-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
       .line-badge {
-        font-family:'DINBlack'; font-size:12px;
-        background: #027cb7; color:#fff; border-radius:5px;
-        padding: 2px 8px; min-width:44px; text-align:center;
+        font-family:'DINBlack'; font-size:11px; background:#027cb7; color:#fff;
+        border-radius:5px; padding:2px 7px; min-width:40px; text-align:center;
       }
       .line-badge.unallocated { background: #374150; }
       .line-meta { font-size:11px; color:rgba(255,255,255,0.35); }
-      .bus-chips { display:flex; flex-wrap:wrap; gap:5px; }
+      .bus-chips { display:flex; flex-wrap:wrap; gap:4px; }
       .chip {
-        font-size:12px; padding:3px 8px; border-radius:5px;
+        font-size:12px; padding:3px 7px; border-radius:5px;
         border: 1px solid rgba(255,255,255,0.12); cursor:pointer;
         transition: background .15s, border-color .15s;
-        color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.04);
+        color: rgba(255,255,255,0.65); background: rgba(255,255,255,0.04);
       }
-      .chip.live { border-color:#027cb7; color:#fff; background:rgba(2,124,183,0.18); }
+      .chip.live { border-color:#027cb7; color:#fff; background:rgba(2,124,183,0.2); }
       .chip:hover { background: rgba(255,255,255,0.1); }
 
-      .alloc-empty { padding:24px 20px; font-size:13px; color:rgba(255,255,255,0.3);
-        text-align:center; }
-      .alloc-loading { padding:24px 20px; font-size:13px; color:rgba(255,255,255,0.3);
-        text-align:center; }
-
-      /* REFRESH TIMER */
+      .alloc-empty { padding:24px 18px; font-size:13px; color:rgba(255,255,255,0.3); text-align:center; }
       .alloc-footer {
-        padding: 10px 20px; border-top: 1px solid rgba(255,255,255,0.07);
+        padding: 9px 18px; border-top: 1px solid rgba(255,255,255,0.07);
         font-size:11px; color:rgba(255,255,255,0.25); text-align:right;
       }
 
-      @media (max-width: 640px) {
-        .alloc-panel { display: none; }
-      }
+      @media (max-width: 600px) { .alloc-panel { display: none; } }
     </style>
   </head>
   <body>
@@ -119,7 +110,7 @@
       <a href="/admin">Dashboard</a>
       <a href="/admin/customers">Clientes</a>
       <a href="/admin/subscriptions">Subscrições</a>
-      <a href="/mapa" style="color:#fff">Mapa</a>
+      <a href="/mapa" class="active">Mapa</a>
       <span id="live-dot"></span>
       <span id="live-count">a ligar...</span>
     </nav>
@@ -130,18 +121,20 @@
       </div>
       <div class="alloc-panel">
         <div class="alloc-header">
-          <h2>Alocação do dia</h2>
-          <span class="alloc-date" id="alloc-date"></span>
+          <div class="alloc-header-top">
+            <h2>Lista do Dia</h2>
+          </div>
+          <input type="date" id="date-picker">
         </div>
         <div class="alloc-body" id="alloc-body">
-          <div class="alloc-loading">A carregar...</div>
+          <div class="alloc-empty">A carregar...</div>
         </div>
         <div class="alloc-footer" id="alloc-footer">—</div>
       </div>
     </div>
 
-    <script>
-      // ── MAP SETUP ──────────────────────────────────────────────────────
+    <script is:inline>
+      // ── MAP ───────────────────────────────────────────────────────────
       const map = new maplibregl.Map({
         container: 'map',
         style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
@@ -156,136 +149,95 @@
 
       map.on('load', () => {
         mapReady = true;
-
-        map.addSource('buses', {
-          type: 'geojson',
-          data: { type: 'FeatureCollection', features: [] },
+        map.addSource('buses', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        map.addLayer({ id: 'buses-glow', type: 'circle', source: 'buses', paint: {
+          'circle-radius': ['interpolate',['linear'],['zoom'],10,14,16,24],
+          'circle-color': ['case',['!=',['get','lineId'],null],'#027cb7','#6b7280'],
+          'circle-opacity': 0.18, 'circle-blur': 1,
+        }});
+        map.addLayer({ id: 'buses-dot', type: 'circle', source: 'buses', paint: {
+          'circle-radius': ['interpolate',['linear'],['zoom'],10,6,16,14],
+          'circle-color': ['case',['!=',['get','lineId'],null],'#027cb7','#6b7280'],
+          'circle-stroke-width': 2, 'circle-stroke-color': '#fff',
+        }});
+        map.addLayer({ id: 'buses-label', type: 'symbol', source: 'buses', minzoom: 14,
+          layout: { 'text-field': ['get','busId'], 'text-font':['Noto Sans Bold'],
+            'text-size': 10, 'text-offset': [0, 1.6], 'text-anchor': 'top' },
+          paint: { 'text-color': '#fff', 'text-halo-color': '#000', 'text-halo-width': 1 },
         });
-
-        // Glow layer (halo)
-        map.addLayer({
-          id: 'buses-glow',
-          type: 'circle',
-          source: 'buses',
-          paint: {
-            'circle-radius': ['interpolate',['linear'],['zoom'], 10,12, 16,22],
-            'circle-color': ['case', ['!=', ['get','lineId'], null], '#027cb7', '#6b7280'],
-            'circle-opacity': 0.18,
-            'circle-blur': 1,
-          },
-        });
-
-        // Main dot
-        map.addLayer({
-          id: 'buses-dot',
-          type: 'circle',
-          source: 'buses',
-          paint: {
-            'circle-radius': ['interpolate',['linear'],['zoom'], 10,6, 16,14],
-            'circle-color': ['case', ['!=', ['get','lineId'], null], '#027cb7', '#6b7280'],
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#fff',
-          },
-        });
-
-        // Bus ID label
-        map.addLayer({
-          id: 'buses-label',
-          type: 'symbol',
-          source: 'buses',
-          minzoom: 14,
-          layout: {
-            'text-field': ['get', 'busId'],
-            'text-font': ['Noto Sans Bold'],
-            'text-size': 10,
-            'text-offset': [0, 1.6],
-            'text-anchor': 'top',
-          },
-          paint: {
-            'text-color': '#fff',
-            'text-halo-color': '#000',
-            'text-halo-width': 1,
-          },
-        });
-
         if (pendingVehicles) updateMap(pendingVehicles);
       });
 
-      // Popup on click
       const popup = new maplibregl.Popup({ closeButton: true, maxWidth: '240px' });
       map.on('click', 'buses-dot', (e) => {
-        const props = e.features[0].properties;
-        const time = props.time ? new Date(props.time * 1000).toLocaleTimeString('pt-PT') : '—';
-        popup.setLngLat(e.lngLat)
-          .setHTML(`
-            <div class="popup-line">${props.lineId !== null && props.lineId !== undefined ? 'Linha ' + props.lineId : 'Sem linha'}</div>
-            <div class="popup-bus">Autocarro ${props.busId}</div>
-            ${props.direction !== null && props.direction !== undefined ? `<div class="popup-bus">Dir. ${props.direction === 0 ? '→' : '←'}</div>` : ''}
-            <div class="popup-time">Posição às ${time}</div>
-          `)
-          .addTo(map);
+        const p = e.features[0].properties;
+        const time = p.time ? new Date(p.time * 1000).toLocaleTimeString('pt-PT') : '—';
+        popup.setLngLat(e.lngLat).setHTML(`
+          <div class="popup-line">${p.lineId !== null && p.lineId !== 'null' ? 'Linha ' + p.lineId : 'Sem linha'}</div>
+          <div class="popup-bus">Autocarro ${p.busId}</div>
+          ${p.direction !== null && p.direction !== 'null' ? `<div class="popup-bus">Dir. ${p.direction == 0 ? '→' : '←'}</div>` : ''}
+          <div class="popup-time">Posição às ${time}</div>
+        `).addTo(map);
       });
       map.on('mouseenter', 'buses-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', 'buses-dot', () => { map.getCanvas().style.cursor = ''; });
 
-      // ── LIVE STATE ────────────────────────────────────────────────────
-      let liveVehicles = {};   // busId -> vehicle object
-      let allocations = {};    // line -> [{busId,...}]
+      // ── STATE ─────────────────────────────────────────────────────────
+      let liveVehicles = {};
+      let allocations = {};
 
       function updateMap(vehicles) {
         liveVehicles = {};
         vehicles.forEach(v => { liveVehicles[String(v.busId)] = v; });
-
         const geojson = {
           type: 'FeatureCollection',
           features: vehicles.map(v => ({
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [v.lon, v.lat] },
-            properties: {
-              busId: String(v.busId),
-              lineId: v.lineId ?? null,
-              direction: v.direction ?? null,
-              time: v.time ?? null,
-            },
+            properties: { busId: String(v.busId), lineId: v.lineId ?? null, direction: v.direction ?? null, time: v.time ?? null },
           })),
         };
-
-        if (mapReady) {
-          map.getSource('buses').setData(geojson);
-        } else {
-          pendingVehicles = vehicles;
-        }
-
+        if (mapReady) { map.getSource('buses').setData(geojson); }
+        else { pendingVehicles = vehicles; }
         document.getElementById('live-count').textContent = vehicles.length + ' veículos';
         renderAlloc();
       }
 
-      // ── SSE STREAM ────────────────────────────────────────────────────
+      // ── SSE ───────────────────────────────────────────────────────────
       function connectSSE() {
+        const dot = document.getElementById('live-dot');
         const es = new EventSource('https://tub.up.railway.app/vehicleStream');
         es.onmessage = (e) => {
-          try { updateMap(JSON.parse(e.data)); } catch {}
+          try { dot.classList.remove('off'); updateMap(JSON.parse(e.data)); } catch {}
         };
         es.onerror = () => {
-          es.close();
+          es.close(); dot.classList.add('off');
           document.getElementById('live-count').textContent = 'a reconectar...';
           setTimeout(connectSSE, 5000);
         };
       }
       connectSSE();
 
+      // ── DATEPICKER ────────────────────────────────────────────────────
+      const picker = document.getElementById('date-picker');
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
+      picker.max = today;
+      picker.value = today;
+      picker.addEventListener('change', () => fetchAlloc(picker.value));
+
       // ── ALLOCATIONS ───────────────────────────────────────────────────
-      async function fetchAlloc() {
+      async function fetchAlloc(date) {
+        date = date || today;
         try {
-          const r = await fetch('/api/alocacao');
+          const r = await fetch('/api/alocacao?date=' + date);
           const data = await r.json();
           allocations = data.allocations || {};
-          document.getElementById('alloc-date').textContent = data.date || '';
           renderAlloc();
           document.getElementById('alloc-footer').textContent =
+            (date === today ? 'Hoje · ' : date + ' · ') +
             'Atualizado às ' + new Date().toLocaleTimeString('pt-PT');
         } catch {
-          document.getElementById('alloc-footer').textContent = 'Erro ao carregar alocações';
+          document.getElementById('alloc-footer').textContent = 'Erro ao carregar';
         }
       }
 
@@ -293,47 +245,40 @@
         const body = document.getElementById('alloc-body');
         const keys = Object.keys(allocations);
         if (!keys.length) {
-          body.innerHTML = '<div class="alloc-empty">Sem dados para hoje.<br>Aguarda o primeiro cron (2 min).</div>';
+          body.innerHTML = '<div class="alloc-empty">Sem dados para este dia.</div>';
           return;
         }
-
-        // Sort: numeric lines first, then 'unallocated'
         keys.sort((a, b) => {
           if (a === 'unallocated') return 1;
           if (b === 'unallocated') return -1;
           return Number(a) - Number(b);
         });
-
+        const isToday = picker.value === today;
         body.innerHTML = keys.map(line => {
           const buses = allocations[line];
           const isUnalloc = line === 'unallocated';
           const chips = buses.map(b => {
-            const isLive = !!liveVehicles[b.busId];
-            return `<span class="chip${isLive ? ' live' : ''}" data-bus="${b.busId}" title="${isLive ? 'Em serviço agora' : 'Visto hoje'}">${b.busId}</span>`;
+            const live = isToday && !!liveVehicles[b.busId];
+            return `<span class="chip${live ? ' live' : ''}" data-bus="${b.busId}" title="${live ? 'Em serviço agora' : 'Visto hoje'}">${b.busId}</span>`;
           }).join('');
-          return `
-            <div class="line-group">
-              <div class="line-header">
-                <span class="line-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? 'Sem linha' : 'L' + line}</span>
-                <span class="line-meta">${buses.length} veículo${buses.length !== 1 ? 's' : ''}</span>
-              </div>
-              <div class="bus-chips">${chips}</div>
-            </div>`;
+          return `<div class="line-group">
+            <div class="line-header">
+              <span class="line-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? 'Sem linha' : 'L' + line}</span>
+              <span class="line-meta">${buses.length} veículo${buses.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="bus-chips">${chips}</div>
+          </div>`;
         }).join('');
-
-        // Click chip → fly to bus on map
         body.querySelectorAll('.chip').forEach(chip => {
           chip.addEventListener('click', () => {
-            const busId = chip.dataset.bus;
-            const v = liveVehicles[busId];
+            const v = liveVehicles[chip.dataset.bus];
             if (v) map.flyTo({ center: [v.lon, v.lat], zoom: 15, speed: 1.5 });
           });
         });
       }
 
-      // Load allocations on page load and every 2 minutes
-      fetchAlloc();
-      setInterval(fetchAlloc, 2 * 60 * 1000);
+      fetchAlloc(today);
+      setInterval(() => fetchAlloc(picker.value), 2 * 60 * 1000);
     </script>
   </body>
 </html>

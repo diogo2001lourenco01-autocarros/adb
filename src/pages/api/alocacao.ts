@@ -1,8 +1,9 @@
 import type { APIContext } from 'astro';
 
-export async function GET({ locals }: APIContext) {
+export async function GET({ locals, url }: APIContext) {
   const env = (locals.runtime as any).env;
-  const date = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
+  const date = url.searchParams.get('date') || today;
 
   const rows = await env.DB.prepare(`
     SELECT line_id, bus_id, MIN(seen_at) as first_seen, MAX(seen_at) as last_seen
