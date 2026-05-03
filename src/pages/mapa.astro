@@ -1,6 +1,9 @@
----
----
+-----
+
+-----
+
 <!doctype html>
+
 <html lang="pt">
   <head>
     <meta charset="UTF-8">
@@ -12,381 +15,545 @@
       @font-face { font-family:'DINBlack';  src:url('/static/fonts/DINBlack.otf')  format('opentype'); font-weight:900; }
       @font-face { font-family:'DINMedium'; src:url('/static/fonts/DINMedium.ttf') format('truetype'); font-weight:500; }
 
-      *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
-      html, body { height:100%; overflow:hidden; background:#0c0e14; color:#fff;
-        font-family:'DINMedium',Helvetica,Arial,sans-serif; }
+```
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; background:#0c0e14; color:#fff;
+    font-family:'DINMedium',Helvetica,Arial,sans-serif; }
 
-      /* ── NAV (oculta — acesso direto pelo link) ───────────────────── */
-      nav { display:none; }
+  /* ── NAV (oculta — acesso direto pelo link) ───────────────────── */
+  nav { display:none; }
 
-      /* ── LIVE PILL (no painel) ────────────────────────────────────── */
-      #live-pill {
-        display:flex; align-items:center; gap:6px;
-        background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25);
-        border-radius:20px; padding:4px 10px;
-      }
-      #live-pill.off { background:rgba(107,114,128,.1); border-color:rgba(107,114,128,.25); }
-      #live-dot { width:7px; height:7px; border-radius:50%; background:#22c55e;
-        animation:pulse 2s infinite; }
-      #live-pill.off #live-dot { background:#6b7280; animation:none; }
-      #live-count { font-size:12px; color:rgba(255,255,255,.6); }
-      @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  /* ── LIVE PILL (no painel) ────────────────────────────────────── */
+  #live-pill {
+    display:flex; align-items:center; gap:6px;
+    background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.25);
+    border-radius:20px; padding:4px 10px;
+  }
+  #live-pill.off { background:rgba(107,114,128,.1); border-color:rgba(107,114,128,.25); }
+  #live-dot { width:7px; height:7px; border-radius:50%; background:#22c55e;
+    animation:pulse 2s infinite; }
+  #live-pill.off #live-dot { background:#6b7280; animation:none; }
+  #live-count { font-size:12px; color:rgba(255,255,255,.6); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
-      /* ── LAYOUT ───────────────────────────────────────────────────── */
-      .layout { display:flex; height:100vh; }
-      .map-wrap { flex:1; position:relative; min-width:0; }
-      #map { width:100%; height:100%; }
+  /* ── LAYOUT ───────────────────────────────────────────────────── */
+  .layout { display:flex; height:100vh; }
+  .map-wrap { flex:1; position:relative; min-width:0; }
+  #map { width:100%; height:100%; }
 
-      /* ── MAPLIBRE POPUP (global — não pode ser scoped) ─────────────── */
-      .maplibregl-popup-content {
-        background:transparent !important;
-        padding:0 !important;
-        border-radius:14px !important;
-        box-shadow:0 8px 32px rgba(0,0,0,.55) !important;
-        overflow:hidden;
-        font-family:'DINMedium',Helvetica,Arial,sans-serif !important;
-      }
-      .maplibregl-popup-tip { border-top-color:#1c2030 !important; }
-      .maplibregl-popup-close-button {
-        color:rgba(255,255,255,.5) !important; font-size:18px !important;
-        top:8px !important; right:8px !important;
-        background:rgba(0,0,0,.3) !important;
-        border-radius:50% !important; width:22px !important; height:22px !important;
-        display:flex !important; align-items:center !important; justify-content:center !important;
-        line-height:1 !important; padding:0 !important;
-      }
-      .pu { min-width:210px; }
-      .pu-head { padding:12px 16px 10px; display:flex; align-items:center; gap:10px; }
-      .pu-head.has-line { background:linear-gradient(135deg,#027cb7,#0256a0); }
-      .pu-head.no-line  { background:linear-gradient(135deg,#2a2f3d,#1c2030); }
-      .pu-line-num { font-family:'DINBlack'; font-size:28px; color:#fff; line-height:1; }
-      .pu-line-label { font-size:10px; color:rgba(255,255,255,.6);
-        text-transform:uppercase; letter-spacing:.8px; }
-      .pu-body { background:#1c2030; padding:12px 16px 14px; }
-      .pu-bus { font-family:'DINBlack'; font-size:17px; color:#fff; }
-      .pu-sub { font-size:11px; color:rgba(255,255,255,.45); margin-top:1px; }
-      .pu-dir { display:inline-flex; align-items:center; gap:5px;
-        background:rgba(255,255,255,.07); border-radius:6px;
-        padding:3px 8px; font-size:12px; color:rgba(255,255,255,.75);
-        margin-top:8px; }
-      .pu-dir svg { opacity:.7; }
-      .pu-time { margin-top:10px; padding-top:8px;
-        border-top:1px solid rgba(255,255,255,.07);
-        font-size:11px; color:rgba(255,255,255,.3); }
+  /* ── MAPLIBRE POPUP (global — não pode ser scoped) ─────────────── */
+  .maplibregl-popup-content {
+    background:transparent !important;
+    padding:0 !important;
+    border-radius:14px !important;
+    box-shadow:0 8px 32px rgba(0,0,0,.55) !important;
+    overflow:hidden;
+    font-family:'DINMedium',Helvetica,Arial,sans-serif !important;
+  }
+  .maplibregl-popup-tip { border-top-color:#1c2030 !important; }
+  .maplibregl-popup-close-button {
+    color:rgba(255,255,255,.5) !important; font-size:18px !important;
+    top:8px !important; right:8px !important;
+    background:rgba(0,0,0,.3) !important;
+    border-radius:50% !important; width:22px !important; height:22px !important;
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    line-height:1 !important; padding:0 !important;
+  }
+  .pu { min-width:210px; }
+  .pu-head { padding:12px 16px 10px; display:flex; align-items:center; gap:10px; }
+  .pu-head.has-line { background:linear-gradient(135deg,#027cb7,#0256a0); }
+  .pu-head.no-line  { background:linear-gradient(135deg,#2a2f3d,#1c2030); }
+  .pu-line-num { font-family:'DINBlack'; font-size:28px; color:#fff; line-height:1; }
+  .pu-line-label { font-size:10px; color:rgba(255,255,255,.6);
+    text-transform:uppercase; letter-spacing:.8px; }
+  .pu-body { background:#1c2030; padding:12px 16px 14px; }
+  .pu-bus { font-family:'DINBlack'; font-size:17px; color:#fff; }
+  .pu-sub { font-size:11px; color:rgba(255,255,255,.45); margin-top:1px; }
+  .pu-dir { display:inline-flex; align-items:center; gap:5px;
+    background:rgba(255,255,255,.07); border-radius:6px;
+    padding:3px 8px; font-size:12px; color:rgba(255,255,255,.75);
+    margin-top:8px; }
+  .pu-dir svg { opacity:.7; }
+  .pu-time { margin-top:10px; padding-top:8px;
+    border-top:1px solid rgba(255,255,255,.07);
+    font-size:11px; color:rgba(255,255,255,.3); }
 
-      /* ── ALLOCATION PANEL ─────────────────────────────────────────── */
-      .alloc-panel {
-        width:310px; flex-shrink:0; display:flex; flex-direction:column;
-        background:#0f1219; border-right:1px solid rgba(255,255,255,.06);
-      }
-      .alloc-header {
-        padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,.06);
-      }
-      .alloc-title-row { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
-      .alloc-title { font-family:'DINBlack'; font-size:15px; color:#fff; }
-      .alloc-badge-count {
-        font-size:11px; background:rgba(2,124,183,.2); color:#60b4f0;
-        border:1px solid rgba(2,124,183,.3); border-radius:20px; padding:2px 8px;
-      }
-      #date-picker {
-        width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-        border-radius:8px; padding:7px 10px; color:#fff;
-        font-family:'DINMedium'; font-size:12px; cursor:pointer; outline:none;
-      }
-      #date-picker::-webkit-calendar-picker-indicator { filter:invert(1); opacity:.45; cursor:pointer; }
-      #date-picker:focus { border-color:#027cb7; }
+  /* ── ALLOCATION PANEL ─────────────────────────────────────────── */
+  .alloc-panel {
+    width:310px; flex-shrink:0; display:flex; flex-direction:column;
+    background:#0f1219; border-right:1px solid rgba(255,255,255,.06);
+  }
+  .alloc-header {
+    padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .alloc-title-row { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+  .alloc-title { font-family:'DINBlack'; font-size:15px; color:#fff; }
+  .alloc-badge-count {
+    font-size:11px; background:rgba(2,124,183,.2); color:#60b4f0;
+    border:1px solid rgba(2,124,183,.3); border-radius:20px; padding:2px 8px;
+  }
+  #date-picker {
+    width:100%; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
+    border-radius:8px; padding:7px 10px; color:#fff;
+    font-family:'DINMedium'; font-size:12px; cursor:pointer; outline:none;
+  }
+  #date-picker::-webkit-calendar-picker-indicator { filter:invert(1); opacity:.45; cursor:pointer; }
+  #date-picker:focus { border-color:#027cb7; }
 
-      .alloc-body { flex:1; overflow-y:auto; padding:8px 0 12px; }
-      .alloc-body::-webkit-scrollbar { width:3px; }
-      .alloc-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:3px; }
+  /* ── COPY BUTTON ─────────────────────────────────────────────── */
+  #copy-fb-btn {
+    width:100%; margin-top:10px;
+    background:#027cb7; border:none; border-radius:8px;
+    padding:8px 10px; color:#fff;
+    font-family:'DINMedium'; font-size:12px; cursor:pointer;
+    transition:background .15s;
+  }
+  #copy-fb-btn:hover { background:#0290d4; }
+  #copy-fb-btn:disabled { background:rgba(255,255,255,.08); color:rgba(255,255,255,.3); cursor:not-allowed; }
 
-      /* Line row */
-      .line-row {
-        padding:6px 16px; border-bottom:1px solid rgba(255,255,255,.04);
-        display:flex; gap:10px; align-items:flex-start;
-      }
-      .line-row:last-child { border-bottom:none; }
-      .lr-badge {
-        flex-shrink:0; margin-top:2px;
-        font-family:'DINBlack'; font-size:12px; letter-spacing:.3px;
-        background:#027cb7; color:#fff; border-radius:6px;
-        padding:3px 9px; min-width:50px; text-align:center;
-        white-space:nowrap;
-      }
-      .lr-badge.unallocated { background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); }
-      .lr-right { flex:1; min-width:0; }
-      .lr-count { font-size:10px; color:rgba(255,255,255,.3);
-        text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
-      .lr-buses { font-size:13px; color:rgba(255,255,255,.75); line-height:1.35;
-        word-break:break-word; }
-      .lr-buses .bus-id { cursor:pointer; transition:color .15s; }
-      .lr-buses .bus-id:hover { color:#fff; }
-      .lr-buses .bus-id.live { color:#22c55e; font-family:'DINBlack'; }
-      .lr-buses .sep { color:rgba(255,255,255,.2); margin:0 2px; }
+  .alloc-body { flex:1; overflow-y:auto; padding:8px 0 12px; }
+  .alloc-body::-webkit-scrollbar { width:3px; }
+  .alloc-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:3px; }
 
-      .alloc-empty { padding:32px 18px; font-size:13px; color:rgba(255,255,255,.25);
-        text-align:center; line-height:1.6; }
-      .alloc-footer {
-        padding:9px 18px; border-top:1px solid rgba(255,255,255,.06);
-        font-size:11px; color:rgba(255,255,255,.2); display:flex;
-        justify-content:space-between; align-items:center;
-      }
-      .footer-live-count { color:#22c55e; font-size:11px; }
+  /* Line row */
+  .line-row {
+    padding:6px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+    display:flex; gap:10px; align-items:flex-start;
+  }
+  .line-row:last-child { border-bottom:none; }
+  .lr-badge {
+    flex-shrink:0; margin-top:2px;
+    font-family:'DINBlack'; font-size:12px; letter-spacing:.3px;
+    background:#027cb7; color:#fff; border-radius:6px;
+    padding:3px 9px; min-width:50px; text-align:center;
+    white-space:nowrap;
+  }
+  .lr-badge.unallocated { background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); }
+  .lr-right { flex:1; min-width:0; }
+  .lr-count { font-size:10px; color:rgba(255,255,255,.3);
+    text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
+  .lr-buses { font-size:13px; color:rgba(255,255,255,.75); line-height:1.35;
+    word-break:break-word; }
+  .lr-buses .bus-id { cursor:pointer; transition:color .15s; }
+  .lr-buses .bus-id:hover { color:#fff; }
+  .lr-buses .bus-id.live { color:#22c55e; font-family:'DINBlack'; }
+  .lr-buses .sep { color:rgba(255,255,255,.2); margin:0 2px; }
 
-      @media (max-width:640px) {
-        .layout { flex-direction:column; }
-        .alloc-panel {
-          width:100%; height:260px; flex-shrink:0;
-          border-right:none; border-bottom:1px solid rgba(255,255,255,.06);
-        }
-      }
-    </style>
+  .alloc-empty { padding:32px 18px; font-size:13px; color:rgba(255,255,255,.25);
+    text-align:center; line-height:1.6; }
+  .alloc-footer {
+    padding:9px 18px; border-top:1px solid rgba(255,255,255,.06);
+    font-size:11px; color:rgba(255,255,255,.2); display:flex;
+    justify-content:space-between; align-items:center;
+  }
+  .footer-live-count { color:#22c55e; font-size:11px; }
+
+  /* ── MODAL ───────────────────────────────────────────────────── */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1000;
+    display:none; align-items:center; justify-content:center; padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-box {
+    background:#1c2030; border:1px solid rgba(255,255,255,.08);
+    border-radius:12px; width:100%; max-width:520px;
+    max-height:90vh; display:flex; flex-direction:column;
+    box-shadow:0 20px 60px rgba(0,0,0,.6);
+  }
+  .modal-header {
+    padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.06);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .modal-title { font-family:'DINBlack'; font-size:14px; color:#fff; }
+  .modal-close {
+    background:none; border:none; color:rgba(255,255,255,.5);
+    font-size:22px; cursor:pointer; line-height:1; padding:0 4px;
+  }
+  .modal-close:hover { color:#fff; }
+  .modal-body { padding:14px 18px; overflow-y:auto; }
+  #fb-text {
+    width:100%; min-height:380px;
+    background:#0c0e14; border:1px solid rgba(255,255,255,.08);
+    border-radius:8px; padding:12px;
+    color:rgba(255,255,255,.85); font-size:12.5px; line-height:1.55;
+    font-family:'Courier New',monospace; resize:vertical; outline:none;
+    white-space:pre;
+  }
+  #fb-text:focus { border-color:#027cb7; }
+  .modal-footer {
+    padding:12px 18px; border-top:1px solid rgba(255,255,255,.06);
+    display:flex; gap:8px; justify-content:flex-end;
+  }
+  .modal-btn {
+    background:#027cb7; border:none; border-radius:8px;
+    padding:8px 16px; color:#fff;
+    font-family:'DINMedium'; font-size:12px; cursor:pointer;
+  }
+  .modal-btn.secondary { background:rgba(255,255,255,.08); }
+  .modal-btn:hover { filter:brightness(1.1); }
+
+  @media (max-width:640px) {
+    .layout { flex-direction:column; }
+    .alloc-panel {
+      width:100%; height:260px; flex-shrink:0;
+      border-right:none; border-bottom:1px solid rgba(255,255,255,.06);
+    }
+  }
+</style>
+```
+
   </head>
   <body>
 
-    <nav>
-      <a href="/">AdB</a>
-      <a href="/admin">Dashboard</a>
-      <a href="/admin/customers">Clientes</a>
-      <a href="/admin/subscriptions">Subscrições</a>
-      <a href="/mapa" class="active">Mapa</a>
-    </nav>
+```
+<nav>
+  <a href="/">AdB</a>
+  <a href="/admin">Dashboard</a>
+  <a href="/admin/customers">Clientes</a>
+  <a href="/admin/subscriptions">Subscrições</a>
+  <a href="/mapa" class="active">Mapa</a>
+</nav>
 
-    <div class="layout">
-      <div class="alloc-panel">
-        <div class="alloc-header">
-          <div class="alloc-title-row">
-            <span class="alloc-title">Lista do Dia</span>
-            <span class="alloc-badge-count" id="alloc-count"></span>
-            <div id="live-pill" class="off" style="margin-left:auto">
-              <span id="live-dot"></span>
-              <span id="live-count">a ligar...</span>
-            </div>
-          </div>
-          <input type="date" id="date-picker">
-        </div>
-        <div class="alloc-body" id="alloc-body">
-          <div class="alloc-empty">A carregar...</div>
-        </div>
-        <div class="alloc-footer">
-          <span id="alloc-footer-text">—</span>
-          <span class="footer-live-count" id="footer-live"></span>
+<div class="layout">
+  <div class="alloc-panel">
+    <div class="alloc-header">
+      <div class="alloc-title-row">
+        <span class="alloc-title">Lista do Dia</span>
+        <span class="alloc-badge-count" id="alloc-count"></span>
+        <div id="live-pill" class="off" style="margin-left:auto">
+          <span id="live-dot"></span>
+          <span id="live-count">a ligar...</span>
         </div>
       </div>
-
-      <div class="map-wrap">
-        <div id="map"></div>
-      </div>
+      <input type="date" id="date-picker">
+      <button id="copy-fb-btn">📋 Copiar publicação Facebook</button>
     </div>
+    <div class="alloc-body" id="alloc-body">
+      <div class="alloc-empty">A carregar...</div>
+    </div>
+    <div class="alloc-footer">
+      <span id="alloc-footer-text">—</span>
+      <span class="footer-live-count" id="footer-live"></span>
+    </div>
+  </div>
 
-    <script is:inline>
-      // ── LOAD MAPLIBRE ─────────────────────────────────────────────────
-      (function(){
-        var s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js';
-        s.onload = initMap;
-        document.head.appendChild(s);
-      })();
+  <div class="map-wrap">
+    <div id="map"></div>
+  </div>
+</div>
 
-      function initMap() {
-        // ── MAP ──────────────────────────────────────────────────────────
-        const map = new maplibregl.Map({
-          container: 'map',
-          style: '/api/maptiles/style',
-          center: [-8.426, 41.550],
-          zoom: 13,
-          attributionControl: false,
+<!-- ── MODAL ─────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="fb-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-title">Publicação Facebook</span>
+      <button class="modal-close" id="fb-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <textarea id="fb-text" spellcheck="false" readonly></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn secondary" id="fb-modal-cancel">Fechar</button>
+      <button class="modal-btn" id="fb-modal-copy">Copiar</button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  // ── LOAD MAPLIBRE ─────────────────────────────────────────────────
+  (function(){
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+    s.onload = initMap;
+    document.head.appendChild(s);
+  })();
+
+  function initMap() {
+    // ── MAP ──────────────────────────────────────────────────────────
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: '/api/maptiles/style',
+      center: [-8.426, 41.550],
+      zoom: 13,
+      attributionControl: false,
+    });
+    map.addControl(new maplibregl.AttributionControl({ compact:true }), 'bottom-left');
+
+    let mapReady = false, pendingVehicles = null;
+
+    map.on('load', () => {
+      mapReady = true;
+      map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
+
+      // Glow halo
+      map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
+        'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
+        'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
+        'circle-opacity':0.15, 'circle-blur':1,
+      }});
+
+      // Main dot
+      map.addLayer({ id:'buses-dot', type:'circle', source:'buses', paint:{
+        'circle-radius':['interpolate',['linear'],['zoom'],10,6,16,13],
+        'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
+        'circle-stroke-width':2.5,
+        'circle-stroke-color':'#fff',
+      }});
+
+      // Label at high zoom
+      map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
+        layout:{
+          'text-field':['get','busId'],
+          'text-font':['Noto Sans Bold'],
+          'text-size':10, 'text-offset':[0,1.7], 'text-anchor':'top',
+        },
+        paint:{
+          'text-color':'#fff','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,
+        },
+      });
+
+      if (pendingVehicles) applyVehicles(pendingVehicles);
+    });
+
+    // ── POPUP ────────────────────────────────────────────────────────
+    const popup = new maplibregl.Popup({ closeButton:true, maxWidth:'260px', offset:14 });
+
+    map.on('click', 'buses-dot', (e) => {
+      const p = e.features[0].properties;
+      const hasLine = p.lineId !== null && p.lineId !== 'null' && p.lineId !== undefined && p.lineId !== 'undefined';
+      const time = p.time ? new Date(p.time * 1000).toLocaleTimeString('pt-PT') : null;
+      const speed = p.speed !== null && p.speed !== 'null' && p.speed !== undefined && p.speed !== 'undefined' ? Math.round(Number(p.speed)) : null;
+      const dir = p.direction !== null && p.direction !== 'null' && p.direction !== undefined && p.direction !== 'undefined';
+
+      const dirArrow = dir
+        ? (p.direction == 0
+            ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Sentido A`
+            : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Sentido B`)
+        : '';
+
+      popup.setLngLat(e.lngLat).setHTML(`
+        <div class="pu">
+          <div class="pu-head ${hasLine ? 'has-line' : 'no-line'}">
+            ${hasLine
+              ? `<div><div class="pu-line-label">Linha</div><div class="pu-line-num">${p.lineId}</div></div>`
+              : `<div><div class="pu-line-label" style="color:rgba(255,255,255,.5)">Sem linha atribuída</div></div>`}
+          </div>
+          <div class="pu-body">
+            <div class="pu-sub">Autocarro</div>
+            <div class="pu-bus">${p.busId}${speed !== null ? `<span style="font-family:'DINMedium';font-size:13px;color:rgba(255,255,255,.5);margin-left:8px">${speed} km/h</span>` : ''}</div>
+            ${dir ? `<div class="pu-dir">${dirArrow}</div>` : ''}
+            ${time ? `<div class="pu-time">Posição registada às ${time}</div>` : ''}
+          </div>
+        </div>
+      `).addTo(map);
+    });
+
+    map.on('mouseenter', 'buses-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'buses-dot', () => { map.getCanvas().style.cursor = ''; });
+
+    // ── STATE ─────────────────────────────────────────────────────────
+    let liveVehicles = {}, allocations = {};
+
+    function applyVehicles(vehicles) {
+      liveVehicles = {};
+      vehicles.forEach(v => { liveVehicles[String(v.busId)] = v; });
+
+      const geojson = {
+        type:'FeatureCollection',
+        features: vehicles.map(v => ({
+          type:'Feature',
+          geometry:{ type:'Point', coordinates:[v.lon, v.lat] },
+          properties:{
+            busId: String(v.busId),
+            lineId: v.lineId ?? null,
+            direction: v.direction ?? null,
+            time: v.time ?? null,
+            speed: v.speed ?? null,
+          },
+        })),
+      };
+
+      if (mapReady) map.getSource('buses').setData(geojson);
+      else pendingVehicles = vehicles;
+
+      const pill = document.getElementById('live-pill');
+      pill.classList.remove('off');
+      document.getElementById('live-count').textContent = vehicles.length + ' veículos';
+      renderAlloc();
+    }
+
+    // ── SSE ───────────────────────────────────────────────────────────
+    function connectSSE() {
+      const pill = document.getElementById('live-pill');
+      const es = new EventSource('https://tub.up.railway.app/vehicleStream');
+      es.onmessage = (e) => { try { applyVehicles(JSON.parse(e.data)); } catch {} };
+      es.onerror = () => {
+        es.close(); pill.classList.add('off');
+        document.getElementById('live-count').textContent = 'a reconectar...';
+        setTimeout(connectSSE, 5000);
+      };
+    }
+    connectSSE();
+
+    // ── DATEPICKER ────────────────────────────────────────────────────
+    const picker = document.getElementById('date-picker');
+    const today = new Date().toLocaleDateString('en-CA', { timeZone:'Europe/Lisbon' });
+    picker.max = today;
+    picker.value = today;
+    picker.addEventListener('change', () => fetchAlloc(picker.value));
+
+    // ── ALLOCATIONS ───────────────────────────────────────────────────
+    async function fetchAlloc(date) {
+      try {
+        const r = await fetch('/api/alocacao?date=' + (date || today));
+        const data = await r.json();
+        allocations = data.allocations || {};
+        renderAlloc();
+        document.getElementById('alloc-footer-text').textContent =
+          (date === today ? 'Hoje' : date) + ' · atualizado ' + new Date().toLocaleTimeString('pt-PT');
+      } catch {
+        document.getElementById('alloc-footer-text').textContent = 'Erro ao carregar';
+      }
+    }
+
+    function renderAlloc() {
+      const body = document.getElementById('alloc-body');
+      const keys = Object.keys(allocations);
+      const isToday = picker.value === today;
+
+      if (!keys.length) {
+        body.innerHTML = '<div class="alloc-empty">Sem dados para este dia.<br><br>Os primeiros registos aparecem após o cron das 00:02.</div>';
+        document.getElementById('alloc-count').textContent = '';
+        document.getElementById('footer-live').textContent = '';
+        return;
+      }
+
+      keys.sort((a, b) => {
+        if (a === 'unallocated') return 1;
+        if (b === 'unallocated') return -1;
+        return Number(a) - Number(b);
+      });
+
+      const totalBuses = keys.reduce((acc, k) => acc + allocations[k].length, 0);
+      const liveCount = Object.keys(liveVehicles).length;
+      document.getElementById('alloc-count').textContent = totalBuses + ' veículos';
+      document.getElementById('footer-live').textContent = isToday ? liveCount + ' em serviço agora' : '';
+
+      body.innerHTML = keys.map(line => {
+        const buses = allocations[line];
+        const isUnalloc = line === 'unallocated';
+
+        const busHTML = buses.map((b, i) => {
+          const live = isToday && !!liveVehicles[b.busId];
+          const sep = i < buses.length - 1 ? '<span class="sep">,</span> ' : '';
+          return `<span class="bus-id${live ? ' live' : ''}" data-bus="${b.busId}" title="${live ? 'Em serviço agora' : 'Visto hoje'}">${b.busId}</span>${sep}`;
+        }).join('');
+
+        return `<div class="line-row">
+          <span class="lr-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? '—' : 'L' + line}</span>
+          <div class="lr-right">
+            <div class="lr-count">${buses.length} veículo${buses.length !== 1 ? 's' : ''}</div>
+            <div class="lr-buses">${busHTML}</div>
+          </div>
+        </div>`;
+      }).join('');
+
+      body.querySelectorAll('.bus-id').forEach(el => {
+        el.addEventListener('click', () => {
+          const v = liveVehicles[el.dataset.bus];
+          if (v) map.flyTo({ center:[v.lon, v.lat], zoom:15, speed:1.5 });
         });
-        map.addControl(new maplibregl.AttributionControl({ compact:true }), 'bottom-left');
+      });
+    }
 
-        let mapReady = false, pendingVehicles = null;
+    // ── FACEBOOK POST GENERATOR ───────────────────────────────────────
+    function buildFbPost() {
+      const dateStr = picker.value.split('-').reverse().join('/'); // YYYY-MM-DD → DD/MM/YYYY
+      const now = new Date();
+      const updatedDate = now.toLocaleDateString('pt-PT', { timeZone:'Europe/Lisbon' });
+      const updatedTime = now.toLocaleTimeString('pt-PT', { timeZone:'Europe/Lisbon', hour:'2-digit', minute:'2-digit' });
 
-        map.on('load', () => {
-          mapReady = true;
-          map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
+      const lines = [];
+      lines.push(`🔵 ➡ Lista do Dia | ${dateStr}`);
+      lines.push(`(Atualizado a: ${updatedDate} - ${updatedTime})`);
+      lines.push('');
 
-          // Glow halo
-          map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
-            'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
-            'circle-opacity':0.15, 'circle-blur':1,
-          }});
+      const numericKeys = Object.keys(allocations)
+        .filter(k => k !== 'unallocated' && !isNaN(Number(k)))
+        .map(Number)
+        .sort((a, b) => a - b);
 
-          // Main dot
-          map.addLayer({ id:'buses-dot', type:'circle', source:'buses', paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],10,6,16,13],
-            'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
-            'circle-stroke-width':2.5,
-            'circle-stroke-color':'#fff',
-          }});
+      const diurnas = numericKeys.filter(n => n < 900);
+      const noturnas = numericKeys.filter(n => n >= 900);
 
-          // Label at high zoom
-          map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
-            layout:{
-              'text-field':['get','busId'],
-              'text-font':['Noto Sans Bold'],
-              'text-size':10, 'text-offset':[0,1.7], 'text-anchor':'top',
-            },
-            paint:{
-              'text-color':'#fff','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,
-            },
-          });
-
-          if (pendingVehicles) applyVehicles(pendingVehicles);
+      lines.push('➡ Linhas Diurnas');
+      lines.push('');
+      if (diurnas.length) {
+        diurnas.forEach(n => {
+          const buses = allocations[String(n)].map(b => b.busId).join(', ');
+          lines.push(`${n} - ${buses}`);
         });
+      } else {
+        lines.push('Sem dados');
+      }
+      lines.push('');
 
-        // ── POPUP ────────────────────────────────────────────────────────
-        const popup = new maplibregl.Popup({ closeButton:true, maxWidth:'260px', offset:14 });
-
-        map.on('click', 'buses-dot', (e) => {
-          const p = e.features[0].properties;
-          const hasLine = p.lineId !== null && p.lineId !== 'null' && p.lineId !== undefined && p.lineId !== 'undefined';
-          const time = p.time ? new Date(p.time * 1000).toLocaleTimeString('pt-PT') : null;
-          const speed = p.speed !== null && p.speed !== 'null' && p.speed !== undefined && p.speed !== 'undefined' ? Math.round(Number(p.speed)) : null;
-          const dir = p.direction !== null && p.direction !== 'null' && p.direction !== undefined && p.direction !== 'undefined';
-
-          const dirArrow = dir
-            ? (p.direction == 0
-                ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg> Sentido A`
-                : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M11 18l-6-6 6-6"/></svg> Sentido B`)
-            : '';
-
-          popup.setLngLat(e.lngLat).setHTML(`
-            <div class="pu">
-              <div class="pu-head ${hasLine ? 'has-line' : 'no-line'}">
-                ${hasLine
-                  ? `<div><div class="pu-line-label">Linha</div><div class="pu-line-num">${p.lineId}</div></div>`
-                  : `<div><div class="pu-line-label" style="color:rgba(255,255,255,.5)">Sem linha atribuída</div></div>`}
-              </div>
-              <div class="pu-body">
-                <div class="pu-sub">Autocarro</div>
-                <div class="pu-bus">${p.busId}${speed !== null ? `<span style="font-family:'DINMedium';font-size:13px;color:rgba(255,255,255,.5);margin-left:8px">${speed} km/h</span>` : ''}</div>
-                ${dir ? `<div class="pu-dir">${dirArrow}</div>` : ''}
-                ${time ? `<div class="pu-time">Posição registada às ${time}</div>` : ''}
-              </div>
-            </div>
-          `).addTo(map);
+      lines.push('➡ Linhas Noturnas');
+      lines.push('');
+      if (noturnas.length) {
+        noturnas.forEach(n => {
+          const buses = allocations[String(n)].map(b => b.busId).join(', ');
+          lines.push(`${n} - ${buses}`);
         });
+      } else {
+        lines.push('Sem dados');
+      }
+      lines.push('');
 
-        map.on('mouseenter', 'buses-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', 'buses-dot', () => { map.getCanvas().style.cursor = ''; });
+      lines.push('➡ Serviços Especiais');
+      lines.push('');
+      lines.push('Sem dados');
+      lines.push('');
 
-        // ── STATE ─────────────────────────────────────────────────────────
-        let liveVehicles = {}, allocations = {};
+      lines.push('➡ Colaborações');
+      lines.push('');
+      lines.push('Sem colaborações');
 
-        function applyVehicles(vehicles) {
-          liveVehicles = {};
-          vehicles.forEach(v => { liveVehicles[String(v.busId)] = v; });
+      return lines.join('\n');
+    }
 
-          const geojson = {
-            type:'FeatureCollection',
-            features: vehicles.map(v => ({
-              type:'Feature',
-              geometry:{ type:'Point', coordinates:[v.lon, v.lat] },
-              properties:{
-                busId: String(v.busId),
-                lineId: v.lineId ?? null,
-                direction: v.direction ?? null,
-                time: v.time ?? null,
-                speed: v.speed ?? null,
-              },
-            })),
-          };
+    const fbModal = document.getElementById('fb-modal');
+    const fbText = document.getElementById('fb-text');
+    const copyBtn = document.getElementById('fb-modal-copy');
 
-          if (mapReady) map.getSource('buses').setData(geojson);
-          else pendingVehicles = vehicles;
+    document.getElementById('copy-fb-btn').addEventListener('click', () => {
+      fbText.value = buildFbPost();
+      fbModal.classList.add('open');
+      copyBtn.textContent = 'Copiar';
+    });
+    document.getElementById('fb-modal-close').addEventListener('click', () => fbModal.classList.remove('open'));
+    document.getElementById('fb-modal-cancel').addEventListener('click', () => fbModal.classList.remove('open'));
+    fbModal.addEventListener('click', (e) => { if (e.target === fbModal) fbModal.classList.remove('open'); });
 
-          const pill = document.getElementById('live-pill');
-          pill.classList.remove('off');
-          document.getElementById('live-count').textContent = vehicles.length + ' veículos';
-          renderAlloc();
-        }
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(fbText.value);
+        copyBtn.textContent = '✓ Copiado!';
+        setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 1500);
+      } catch {
+        fbText.select();
+        document.execCommand('copy');
+        copyBtn.textContent = '✓ Copiado!';
+        setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 1500);
+      }
+    });
 
-        // ── SSE ───────────────────────────────────────────────────────────
-        function connectSSE() {
-          const pill = document.getElementById('live-pill');
-          const es = new EventSource('https://tub.up.railway.app/vehicleStream');
-          es.onmessage = (e) => { try { applyVehicles(JSON.parse(e.data)); } catch {} };
-          es.onerror = () => {
-            es.close(); pill.classList.add('off');
-            document.getElementById('live-count').textContent = 'a reconectar...';
-            setTimeout(connectSSE, 5000);
-          };
-        }
-        connectSSE();
+    fetchAlloc(today);
+    setInterval(() => fetchAlloc(picker.value), 2 * 60 * 1000);
 
-        // ── DATEPICKER ────────────────────────────────────────────────────
-        const picker = document.getElementById('date-picker');
-        const today = new Date().toLocaleDateString('en-CA', { timeZone:'Europe/Lisbon' });
-        picker.max = today;
-        picker.value = today;
-        picker.addEventListener('change', () => fetchAlloc(picker.value));
+  } // end initMap
+</script>
+```
 
-        // ── ALLOCATIONS ───────────────────────────────────────────────────
-        async function fetchAlloc(date) {
-          try {
-            const r = await fetch('/api/alocacao?date=' + (date || today));
-            const data = await r.json();
-            allocations = data.allocations || {};
-            renderAlloc();
-            document.getElementById('alloc-footer-text').textContent =
-              (date === today ? 'Hoje' : date) + ' · atualizado ' + new Date().toLocaleTimeString('pt-PT');
-          } catch {
-            document.getElementById('alloc-footer-text').textContent = 'Erro ao carregar';
-          }
-        }
-
-        function renderAlloc() {
-          const body = document.getElementById('alloc-body');
-          const keys = Object.keys(allocations);
-          const isToday = picker.value === today;
-
-          if (!keys.length) {
-            body.innerHTML = '<div class="alloc-empty">Sem dados para este dia.<br><br>Os primeiros registos aparecem após o cron das 00:02.</div>';
-            document.getElementById('alloc-count').textContent = '';
-            document.getElementById('footer-live').textContent = '';
-            return;
-          }
-
-          keys.sort((a, b) => {
-            if (a === 'unallocated') return 1;
-            if (b === 'unallocated') return -1;
-            return Number(a) - Number(b);
-          });
-
-          const totalBuses = keys.reduce((acc, k) => acc + allocations[k].length, 0);
-          const liveCount = Object.keys(liveVehicles).length;
-          document.getElementById('alloc-count').textContent = totalBuses + ' veículos';
-          document.getElementById('footer-live').textContent = isToday ? liveCount + ' em serviço agora' : '';
-
-          body.innerHTML = keys.map(line => {
-            const buses = allocations[line];
-            const isUnalloc = line === 'unallocated';
-
-            const busHTML = buses.map((b, i) => {
-              const live = isToday && !!liveVehicles[b.busId];
-              const sep = i < buses.length - 1 ? '<span class="sep">,</span> ' : '';
-              return `<span class="bus-id${live ? ' live' : ''}" data-bus="${b.busId}" title="${live ? 'Em serviço agora' : 'Visto hoje'}">${b.busId}</span>${sep}`;
-            }).join('');
-
-            return `<div class="line-row">
-              <a class="lr-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? '—' : line}</a><span style="visibility: hidden!important"> - </span>
-              <a class="lr-buses">${busHTML}</a>
-            </div>`;
-          }).join('');
-
-          body.querySelectorAll('.bus-id').forEach(el => {
-            el.addEventListener('click', () => {
-              const v = liveVehicles[el.dataset.bus];
-              if (v) map.flyTo({ center:[v.lon, v.lat], zoom:15, speed:1.5 });
-            });
-          });
-        }
-
-        fetchAlloc(today);
-        setInterval(() => fetchAlloc(picker.value), 2 * 60 * 1000);
-
-      } // end initMap
-    </script>
   </body>
 </html>
