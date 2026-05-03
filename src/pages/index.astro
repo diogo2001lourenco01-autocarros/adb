@@ -1,5 +1,8 @@
 ---
 import '@/styles/globals.css'
+
+// Este código executa apenas no momento da construção (build)
+const currentYear = new Date().getFullYear();
 ---
 
 <!doctype html>
@@ -141,7 +144,7 @@ import '@/styles/globals.css'
         fill: white;
       }
 
-      .refresh-msg {
+      .copyright-msg {
         margin-top: 50px;
         font-family: 'DINMedium', sans-serif;
         font-size: 11px;
@@ -178,7 +181,9 @@ import '@/styles/globals.css'
       </a>
     </div>
 
-    <div class="refresh-msg">Faça refresh e descubra uma nova curiosidade.</div>
+    <div class="copyright-msg">
+      &copy; {currentYear} Autocarros de Braga. Todos os direitos reservados.
+    </div>
 
   </body>
 </html>
