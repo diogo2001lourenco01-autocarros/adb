@@ -370,11 +370,8 @@
             }).join('');
 
             return `<div class="line-row">
-              <span class="lr-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? '—' : 'L' + line}</span>
-              <div class="lr-right">
-                <div class="lr-count">${buses.length} veículo${buses.length !== 1 ? 's' : ''}</div>
-                <div class="lr-buses">${busHTML}</div>
-              </div>
+              <a class="lr-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? '—' : line}</a><span style="visibility: hidden!important"> - </span>
+              <a class="lr-buses">${busHTML}</a>
             </div>`;
           }).join('');
 
