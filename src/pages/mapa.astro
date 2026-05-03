@@ -262,6 +262,23 @@
       })();
 
       function initMap() {
+        // ── HELPERS ──────────────────────────────────────────────────────
+        // Ordena array de buses (objetos com .busId) numericamente crescente.
+        // Ex.: [1041, 281, 282, 905] → [281, 282, 905, 1041].
+        // IDs não-numéricos vão para o fim, mantendo a ordem relativa entre si.
+        function sortBusesNumeric(buses) {
+          return [...buses].sort((a, b) => {
+            const na = Number(a.busId);
+            const nb = Number(b.busId);
+            const aNaN = Number.isNaN(na);
+            const bNaN = Number.isNaN(nb);
+            if (aNaN && bNaN) return 0;
+            if (aNaN) return 1;
+            if (bNaN) return -1;
+            return na - nb;
+          });
+        }
+
         // ── MAP ──────────────────────────────────────────────────────────
         const map = new maplibregl.Map({
           container: 'map',
@@ -433,7 +450,7 @@
           document.getElementById('footer-live').textContent = isToday ? liveCount + ' em serviço agora' : '';
 
           body.innerHTML = keys.map(line => {
-            const buses = allocations[line];
+            const buses = sortBusesNumeric(allocations[line]); // ← ordena crescente por busId
             const isUnalloc = line === 'unallocated';
 
             const busHTML = buses.map((b, i) => {
@@ -483,7 +500,8 @@
           lines.push('');
           if (diurnas.length) {
             diurnas.forEach(n => {
-              const buses = allocations[String(n)].map(b => b.busId).join(', ');
+              const buses = sortBusesNumeric(allocations[String(n)]) // ← ordena crescente
+                .map(b => b.busId).join(', ');
               lines.push(`${n} - ${buses}`);
             });
           } else {
@@ -495,7 +513,8 @@
           lines.push('');
           if (noturnas.length) {
             noturnas.forEach(n => {
-              const buses = allocations[String(n)].map(b => b.busId).join(', ');
+              const buses = sortBusesNumeric(allocations[String(n)]) // ← ordena crescente
+                .map(b => b.busId).join(', ');
               lines.push(`${n} - ${buses}`);
             });
           } else {
