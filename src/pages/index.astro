@@ -32,7 +32,18 @@ const currentYear = new Date().getFullYear();
       body {
         margin: 0;
         padding: 0;
-        background-color: #374150;
+        /* Cor sólida de fundo */
+        background-color: #535f6f;
+        /* Imagem por cima da cor (caminho atualizado para /static/images/) */
+        background-image: url("/static/images/mapa-brg.png");
+        /* Corta as laterais e preenche de cima a baixo */
+        background-size: cover;
+        /* Centraliza o mapa no ecrã */
+        background-position: center;
+        background-repeat: no-repeat;
+        /* Garante que o fundo não mexe ao fazer scroll */
+        background-attachment: fixed;
+        
         color: white;
         font-family: 'DINMedium', Helvetica, Arial, sans-serif;
         display: flex;
@@ -86,6 +97,12 @@ const currentYear = new Date().getFullYear();
       }
 
       /* CONTEÚDO */
+      /* Z-index para garantir que o conteúdo fica acima do mapa */
+      .logo-adb, .intro-txt, .historia-txt, .social-container, .copyright-msg {
+        position: relative;
+        z-index: 2;
+      }
+
       .logo-adb {
         width: 280px;
         height: auto;
