@@ -5,38 +5,41 @@ export async function GET({ locals, url }: APIContext) {
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
   const date = url.searchParams.get('date') || today;
 
-  // All distinct (bus, line) pairs seen during the day.
-  // A bus appears once per line it operated on, so a vehicle that switched lines
-  // shows up under every line it served.
-  // "Unallocated" only contains buses that never received a line assignment today.
+  // Single scan on the compact vehicle_daily_alloc table.
+  // With ~75–225 rows per day (vs. ~54 000 in vehicle_sightings + 3 full scans)
+  // this call now reads orders of magnitude fewer rows per request.
   const rows = await env.DB.prepare(`
-    SELECT bus_id, line_id, MIN(seen_at) AS first_seen, MAX(seen_at) AS last_seen
-    FROM vehicle_sightings
-    WHERE date = ? AND line_id IS NOT NULL
-    GROUP BY bus_id, line_id
-
-    UNION ALL
-
-    SELECT bus_id, NULL AS line_id, MIN(seen_at) AS first_seen, MAX(seen_at) AS last_seen
-    FROM vehicle_sightings
+    SELECT bus_id, line_id, first_seen, last_seen
+    FROM vehicle_daily_alloc
     WHERE date = ?
-      AND bus_id NOT IN (
-        SELECT DISTINCT bus_id FROM vehicle_sightings WHERE date = ? AND line_id IS NOT NULL
-      )
-    GROUP BY bus_id
-
     ORDER BY line_id NULLS LAST, bus_id
-  `).bind(date, date, date).all();
+  `).bind(date).all();
 
   const byLine: Record<string, { busId: string; firstSeen: number; lastSeen: number }[]> = {};
 
+  // First pass: identify buses that operated at least one named line today.
+  const busHasLine = new Set<string>();
   for (const row of (rows.results as any[])) {
+    if (row.line_id !== null) busHasLine.add(row.bus_id);
+  }
+
+  // Second pass: build the allocation map.
+  // Null-line rows are skipped for buses that also have a real line assignment,
+  // matching the original "unallocated = never had a line" semantics.
+  for (const row of (rows.results as any[])) {
+    if (row.line_id === null && busHasLine.has(row.bus_id)) continue;
     const key = row.line_id !== null ? String(row.line_id) : 'unallocated';
     if (!byLine[key]) byLine[key] = [];
     byLine[key].push({ busId: row.bus_id, firstSeen: row.first_seen, lastSeen: row.last_seen });
   }
 
   return new Response(JSON.stringify({ date, allocations: byLine }), {
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      // Cache for 90 s — data only changes when the cron fires (every 2 min).
+      // Cloudflare CDN will serve cached responses, saving D1 reads on repeated calls.
+      'Cache-Control': 'public, max-age=90, stale-while-revalidate=30',
+    },
   });
 }
+
