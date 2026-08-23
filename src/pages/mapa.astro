@@ -1,4 +1,34 @@
 ---
+const env = Astro.locals.runtime?.env;
+const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
+const queryDate = Astro.url.searchParams.get('date') || today;
+
+let initialAllocations = {};
+
+if (env?.DB) {
+  try {
+    const rows = await env.DB.prepare(`
+      SELECT bus_id, line_id, first_seen, last_seen
+      FROM vehicle_daily_alloc
+      WHERE date = ?
+      ORDER BY line_id NULLS LAST, bus_id
+    `).bind(queryDate).all();
+
+    const busHasLine = new Set();
+    for (const row of rows.results) {
+      if (row.line_id !== null) busHasLine.add(row.bus_id);
+    }
+
+    for (const row of rows.results) {
+      if (row.line_id === null && busHasLine.has(row.bus_id)) continue;
+      const key = row.line_id !== null ? String(row.line_id) : 'unallocated';
+      if (!initialAllocations[key]) initialAllocations[key] = [];
+      initialAllocations[key].push({ busId: row.bus_id, firstSeen: row.first_seen, lastSeen: row.last_seen });
+    }
+  } catch (err) {
+    console.error("SSR Allocation fetch error:", err);
+  }
+}
 ---
 <!doctype html>
 <html lang="pt">
@@ -298,6 +328,12 @@
       </div>
     </div>
 
+    <script is:inline define:vars={{ initialAllocations, queryDate, today }}>
+      window.INITIAL_ALLOCATIONS = initialAllocations;
+      window.QUERY_DATE = queryDate;
+      window.TODAY_DATE = today;
+    </script>
+
     <script is:inline>
       // ── LOAD MAPLIBRE ─────────────────────────────────────────────────
       (function(){
@@ -309,9 +345,6 @@
 
       function initMap() {
         // ── HELPERS ──────────────────────────────────────────────────────
-        // Ordena array de buses (objetos com .busId) numericamente crescente.
-        // Ex.: [1041, 281, 282, 905] → [281, 282, 905, 1041].
-        // IDs não-numéricos vão para o fim, mantendo a ordem relativa entre si.
         function sortBusesNumeric(buses) {
           return [...buses].sort((a, b) => {
             const na = Number(a.busId);
@@ -341,14 +374,12 @@
           mapReady = true;
           map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
 
-          // Glow halo
           map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
             'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
             'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
             'circle-opacity':0.15, 'circle-blur':1,
           }});
 
-          // Main dot
           map.addLayer({ id:'buses-dot', type:'circle', source:'buses', paint:{
             'circle-radius':['interpolate',['linear'],['zoom'],10,6,16,13],
             'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
@@ -356,7 +387,6 @@
             'circle-stroke-color':'#fff',
           }});
 
-          // Label at high zoom
           map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
             layout:{
               'text-field':['get','busId'],
@@ -371,7 +401,6 @@
           if (pendingVehicles) applyVehicles(pendingVehicles);
         });
 
-        // ── POPUP ────────────────────────────────────────────────────────
         const popup = new maplibregl.Popup({ closeButton:true, maxWidth:'260px', offset:14 });
 
         map.on('click', 'buses-dot', (e) => {
@@ -408,7 +437,7 @@
         map.on('mouseleave', 'buses-dot', () => { map.getCanvas().style.cursor = ''; });
 
         // ── STATE ─────────────────────────────────────────────────────────
-        let liveVehicles = {}, allocations = {};
+        let liveVehicles = {}, allocations = window.INITIAL_ALLOCATIONS || {};
 
         function applyVehicles(vehicles) {
           liveVehicles = {};
@@ -438,7 +467,6 @@
           renderAlloc();
         }
 
-        // ── SSE ───────────────────────────────────────────────────────────
         function connectSSE() {
           const pill = document.getElementById('live-pill');
           const es = new EventSource('https://tub.up.railway.app/vehicleStream');
@@ -451,22 +479,35 @@
         }
         connectSSE();
 
-        // ── DATEPICKER ────────────────────────────────────────────────────
+        // ── DATEPICKER E INITIAL RENDER ──────────────────────────────────
         const picker = document.getElementById('date-picker');
-        const today = new Date().toLocaleDateString('en-CA', { timeZone:'Europe/Lisbon' });
-        picker.max = today;
-        picker.value = today;
-        picker.addEventListener('change', () => fetchAlloc(picker.value));
+        picker.max = window.TODAY_DATE;
+        picker.value = window.QUERY_DATE;
 
-        // ── ALLOCATIONS ───────────────────────────────────────────────────
+        picker.addEventListener('change', () => {
+          const newDate = picker.value;
+          window.history.pushState({}, '', '?date=' + newDate);
+          fetchAlloc(newDate);
+          
+          clearTimeout(pollTimer);
+          if (newDate === window.TODAY_DATE) {
+             schedulePoll();
+          }
+        });
+
+        // First render using SSR data
+        document.getElementById('alloc-footer-text').textContent =
+          (window.QUERY_DATE === window.TODAY_DATE ? 'Hoje' : window.QUERY_DATE) + ' · atualizado ' + new Date().toLocaleTimeString('pt-PT');
+        renderAlloc();
+
         async function fetchAlloc(date) {
           try {
-            const r = await fetch('/api/alocacao?date=' + (date || today));
+            const r = await fetch('/api/alocacao?date=' + (date || window.TODAY_DATE));
             const data = await r.json();
             allocations = data.allocations || {};
             renderAlloc();
             document.getElementById('alloc-footer-text').textContent =
-              (date === today ? 'Hoje' : date) + ' · atualizado ' + new Date().toLocaleTimeString('pt-PT');
+              (date === window.TODAY_DATE ? 'Hoje' : date) + ' · atualizado ' + new Date().toLocaleTimeString('pt-PT');
           } catch {
             document.getElementById('alloc-footer-text').textContent = 'Erro ao carregar';
           }
@@ -475,7 +516,7 @@
         function renderAlloc() {
           const body = document.getElementById('alloc-body');
           const keys = Object.keys(allocations);
-          const isToday = picker.value === today;
+          const isToday = picker.value === window.TODAY_DATE;
 
           if (!keys.length) {
             body.innerHTML = '<div class="alloc-empty">Sem dados para este dia.<br><br>Os primeiros registos aparecem após o cron das 00:02.</div>';
@@ -496,7 +537,7 @@
           document.getElementById('footer-live').textContent = isToday ? liveCount + ' em serviço agora' : '';
 
           body.innerHTML = keys.map(line => {
-            const buses = sortBusesNumeric(allocations[line]); // ← ordena crescente por busId
+            const buses = sortBusesNumeric(allocations[line]);
             const isUnalloc = line === 'unallocated';
 
             const busHTML = buses.map((b, i) => {
@@ -524,7 +565,7 @@
 
         // ── FACEBOOK POST GENERATOR ───────────────────────────────────────
         function buildFbPost() {
-          const dateStr = picker.value.split('-').reverse().join('/'); // YYYY-MM-DD → DD/MM/YYYY
+          const dateStr = picker.value.split('-').reverse().join('/');
           const now = new Date();
           const updatedDate = now.toLocaleDateString('pt-PT', { timeZone:'Europe/Lisbon' });
           const updatedTime = now.toLocaleTimeString('pt-PT', { timeZone:'Europe/Lisbon', hour:'2-digit', minute:'2-digit' });
@@ -546,7 +587,7 @@
           lines.push('');
           if (diurnas.length) {
             diurnas.forEach(n => {
-              const buses = sortBusesNumeric(allocations[String(n)]) // ← ordena crescente
+              const buses = sortBusesNumeric(allocations[String(n)])
                 .map(b => b.busId).join(', ');
               lines.push(`${n} - ${buses}`);
             });
@@ -559,7 +600,7 @@
           lines.push('');
           if (noturnas.length) {
             noturnas.forEach(n => {
-              const buses = sortBusesNumeric(allocations[String(n)]) // ← ordena crescente
+              const buses = sortBusesNumeric(allocations[String(n)])
                 .map(b => b.busId).join(', ');
               lines.push(`${n} - ${buses}`);
             });
@@ -606,28 +647,33 @@
           }
         });
 
-        fetchAlloc(today);
-        
         // Polling inteligente: pára de fazer pedidos se a aba estiver em background
         let pollTimer;
         function schedulePoll() {
+          if (picker.value !== window.TODAY_DATE) return; // Nunca pollar passado
+          
           pollTimer = setTimeout(() => {
-            if (!document.hidden) {
+            if (!document.hidden && picker.value === window.TODAY_DATE) {
               fetchAlloc(picker.value);
             }
             schedulePoll();
           }, 2 * 60 * 1000);
         }
-        schedulePoll();
+        
+        // Inicia polling apenas se estivermos a ver a data de hoje
+        if (picker.value === window.TODAY_DATE) {
+          schedulePoll();
+        }
 
         // Faz refresh imediato (se necessário) ao voltar à aba
         document.addEventListener('visibilitychange', () => {
-          if (!document.hidden) {
+          if (!document.hidden && picker.value === window.TODAY_DATE) {
             fetchAlloc(picker.value);
             clearTimeout(pollTimer);
             schedulePoll();
           }
         });
+
 
         // ── MOBILE SIDEBAR TOGGLE ─────────────────────────────────────────
         const mobileToggle   = document.getElementById('mobile-toggle');
