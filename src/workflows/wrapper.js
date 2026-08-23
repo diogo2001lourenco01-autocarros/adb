@@ -38,7 +38,12 @@ async function handleScheduled(event, env, ctx) {
       return;
     }
 
-    const date = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Lisbon" });
+    const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Lisbon" }));
+    if (d.getHours() < 3) d.setDate(d.getDate() - 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const date = `${year}-${month}-${day}`;
     const now = Math.floor(Date.now() / 1000);
 
     // ── 2. Write only NEW (date, bus, line) combinations ─────────────────

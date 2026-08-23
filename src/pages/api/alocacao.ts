@@ -2,7 +2,13 @@ import type { APIContext } from 'astro';
 
 export async function GET({ locals, url }: APIContext) {
   const env = (locals.runtime as any).env;
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/Lisbon' });
+  const d = new Date(new Date().toLocaleString("en-US", { timeZone: "Europe/Lisbon" }));
+  if (d.getHours() < 3) d.setDate(d.getDate() - 1);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const today = `${year}-${month}-${day}`;
+  
   const date = url.searchParams.get('date') || today;
 
   // Single scan on the compact vehicle_daily_alloc table.
