@@ -14,7 +14,14 @@ async function handleScheduled(event, env, ctx) {
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
-        for (const line of buffer.split("\n")) {
+        // Normalise CRLF → LF so SSE servers using \r\n are handled correctly.
+        // Only process lines that have been fully received (i.e. up to the last \n);
+        // keep the trailing incomplete fragment in the buffer for the next chunk.
+        const newline = buffer.lastIndexOf("\n");
+        if (newline === -1) continue;
+        const complete = buffer.slice(0, newline + 1).replace(/\r\n/g, "\n");
+        buffer = buffer.slice(newline + 1);
+        for (const line of complete.split("\n")) {
           if (line.startsWith("data:")) {
             try { vehicles = JSON.parse(line.slice(5).trim()); } catch {}
             if (vehicles) return;
