@@ -607,7 +607,27 @@
         });
 
         fetchAlloc(today);
-        setInterval(() => fetchAlloc(picker.value), 2 * 60 * 1000);
+        
+        // Polling inteligente: pára de fazer pedidos se a aba estiver em background
+        let pollTimer;
+        function schedulePoll() {
+          pollTimer = setTimeout(() => {
+            if (!document.hidden) {
+              fetchAlloc(picker.value);
+            }
+            schedulePoll();
+          }, 2 * 60 * 1000);
+        }
+        schedulePoll();
+
+        // Faz refresh imediato (se necessário) ao voltar à aba
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) {
+            fetchAlloc(picker.value);
+            clearTimeout(pollTimer);
+            schedulePoll();
+          }
+        });
 
         // ── MOBILE SIDEBAR TOGGLE ─────────────────────────────────────────
         const mobileToggle   = document.getElementById('mobile-toggle');
