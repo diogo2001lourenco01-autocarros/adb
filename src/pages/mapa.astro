@@ -117,12 +117,19 @@ if (env?.DB) {
       }
       .alloc-header {
         padding:16px 18px 12px; border-bottom:1px solid rgba(255,255,255,.06);
+        display: flex; flex-direction: column;
       }
-      .alloc-title-row { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
-      .alloc-title { font-family:'DINBlack'; font-size:15px; color:#fff; }
+      .header-logo-container { display:flex; justify-content:center; margin-bottom: 8px; }
+      .adb-logo { height: 28px; width: auto; }
+      .header-title-container { display:flex; justify-content:center; }
+      .alloc-title { font-family:'DINBlack'; font-size:18px; color:#fff; }
+      
+      .header-separator { border:none; border-top:1px solid rgba(255,255,255,.06); margin: 12px 0; }
+      .header-stats-row { display:flex; align-items:center; justify-content:center; gap:8px; }
+
       .alloc-badge-count {
-        font-size:11px; background:rgba(2,124,183,.2); color:#60b4f0;
-        border:1px solid rgba(2,124,183,.3); border-radius:20px; padding:2px 8px;
+        font-size:12px; background:rgba(2,124,183,.2); color:#60b4f0;
+        border:1px solid rgba(2,124,183,.3); border-radius:20px; padding:3px 10px;
       }
       #loc-btn {
         background: transparent; border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
@@ -323,21 +330,28 @@ if (env?.DB) {
     <div class="layout">
       <div class="alloc-panel">
         <div class="alloc-header">
-          <div class="alloc-title-row">
+          <div class="header-logo-container">
+            <img src="/static/images/adb.svg" alt="AdB Logo" class="adb-logo">
+          </div>
+          <div class="header-title-container">
             <span class="alloc-title">Lista do Dia</span>
+          </div>
+          <hr class="header-separator">
+          
+          <div class="header-stats-row">
+            <button id="loc-btn" title="Minha Localização">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+              </svg>
+            </button>
             <span class="alloc-badge-count" id="alloc-count"></span>
-            <div style="margin-left:auto; display:flex; gap:6px; align-items:center;">
-              <button id="loc-btn" title="Minha Localização">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="3 11 22 2 13 21 11 13 3 11"/>
-                </svg>
-              </button>
-              <div id="live-pill" class="off">
-                <span id="live-dot"></span>
-                <span id="live-count">a ligar...</span>
-              </div>
+            <div id="live-pill" class="off">
+              <span id="live-dot"></span>
+              <span id="live-count">a ligar...</span>
             </div>
           </div>
+          <hr class="header-separator">
+
           <input type="date" id="date-picker">
           <button id="copy-fb-btn">📋 Copiar publicação Facebook</button>
         </div>
