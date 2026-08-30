@@ -166,9 +166,9 @@ if (env?.DB) {
         display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;
       }
       .bus-badge {
-        font-family:'DINBlack'; font-size:12px; font-weight:bold;
+        font-family:'DINBlack'; font-size:15px; font-weight:900;
         color:#fff;
-        border-radius:6px; padding:4px 8px;
+        border-radius:6px; padding:5px 9px;
         text-align:center;
         cursor:pointer; transition:filter .15s;
         display: inline-block;
@@ -179,16 +179,16 @@ if (env?.DB) {
       .bg-gray { background-color: #6b7280; }
       .bg-blue { background-color: #027cb7; }
 
-      .state-live { text-decoration: underline solid white 2px; text-underline-offset: 2px; }
-      .state-delayed { text-decoration: underline dashed white 2px; text-underline-offset: 2px; }
+      .state-live { text-decoration: underline solid white 2.5px; text-underline-offset: 3px; }
+      .state-delayed { text-decoration: underline dashed white 2.5px; text-underline-offset: 3px; }
       .state-offline { filter: brightness(0.4); }
 
       @keyframes specialBlink {
-        0%, 49% { color: #fff; text-decoration-color: #fff; }
-        50%, 100% { color: #000; text-decoration-color: #000; }
+        0%, 100% { color: #fff; text-decoration-color: #fff; }
+        50% { color: #000; text-decoration-color: #000; }
       }
-      .blink-special {
-        animation: specialBlink 1.2s infinite;
+      .state-live.blink-special {
+        animation: specialBlink 1.5s ease-in-out infinite;
       }
 
       .alloc-empty { padding:32px 18px; font-size:13px; color:rgba(255,255,255,.25);
