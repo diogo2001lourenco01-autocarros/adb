@@ -147,7 +147,6 @@ if (env?.DB) {
       .alloc-body::-webkit-scrollbar { width:3px; }
       .alloc-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:3px; }
 
-      /* Line row */
       .line-row {
         padding:6px 16px; border-bottom:1px solid rgba(255,255,255,.04);
         display:flex; gap:10px; align-items:flex-start;
@@ -155,21 +154,42 @@ if (env?.DB) {
       .line-row:last-child { border-bottom:none; }
       .lr-badge {
         flex-shrink:0; margin-top:2px;
-        font-family:'DINBlack'; font-size:12px; letter-spacing:.3px;
-        background:#027cb7; color:#fff; border-radius:6px;
-        padding:3px 9px; min-width:50px; text-align:center;
+        font-family:'DINBlack'; font-size:16px;
+        color:#fff; min-width:45px; text-align:right;
         white-space:nowrap;
       }
-      .lr-badge.unallocated { background:rgba(255,255,255,.08); color:rgba(255,255,255,.5); }
+      .lr-badge.unallocated { color:rgba(255,255,255,.5); }
+
       .lr-right { flex:1; min-width:0; }
-      .lr-count { font-size:10px; color:rgba(255,255,255,.3);
-        text-transform:uppercase; letter-spacing:.5px; margin-bottom:2px; }
-      .lr-buses { font-size:13px; color:rgba(255,255,255,.75); line-height:1.35;
-        word-break:break-word; }
-      .lr-buses .bus-id { cursor:pointer; transition:color .15s; }
-      .lr-buses .bus-id:hover { color:#fff; }
-      .lr-buses .bus-id.live { color:#22c55e; font-family:'DINBlack'; }
-      .lr-buses .sep { color:rgba(255,255,255,.2); margin:0 2px; }
+      
+      .lr-buses { 
+        display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;
+      }
+      .bus-badge {
+        font-family:'DINBlack'; font-size:12px; font-weight:bold;
+        color:#fff;
+        border-radius:6px; padding:4px 8px;
+        text-align:center;
+        cursor:pointer; transition:filter .15s;
+        display: inline-block;
+      }
+      .bus-badge:hover { filter:brightness(1.15); }
+      
+      .bg-red { background-color: #e30613; }
+      .bg-gray { background-color: #6b7280; }
+      .bg-blue { background-color: #027cb7; }
+
+      .state-live { text-decoration: underline solid white 2px; text-underline-offset: 2px; }
+      .state-delayed { text-decoration: underline dashed white 2px; text-underline-offset: 2px; }
+      .state-offline { filter: brightness(0.4); }
+
+      @keyframes specialBlink {
+        0%, 49% { color: #fff; text-decoration-color: #fff; }
+        50%, 100% { color: #000; text-decoration-color: #000; }
+      }
+      .blink-special {
+        animation: specialBlink 1.2s infinite;
+      }
 
       .alloc-empty { padding:32px 18px; font-size:13px; color:rgba(255,255,255,.25);
         text-align:center; line-height:1.6; }
@@ -546,22 +566,68 @@ if (env?.DB) {
             const buses = sortBusesNumeric(allocations[line]);
             const isUnalloc = line === 'unallocated';
 
+            let badgeClass = '';
+            let lineText = line;
+            if (isUnalloc) {
+              badgeClass = ' unallocated';
+              lineText = '—';
+            } else {
+              lineText = lineText + ' -';
+            }
+
             const busHTML = buses.map((b, i) => {
-              const live = isToday && !!liveVehicles[b.busId];
-              const sep = i < buses.length - 1 ? '<span class="sep">,</span> ' : '';
-              return `<span class="bus-id${live ? ' live' : ''}" data-bus="${b.busId}" title="${live ? 'Em serviço agora' : 'Visto hoje'}">${b.busId}</span>${sep}`;
+              const busNum = Number(b.busId);
+              
+              let bgClass = 'bg-blue';
+              if (!isNaN(busNum)) {
+                if (busNum <= 899) bgClass = 'bg-red';
+                else if (busNum >= 900 && busNum <= 999) bgClass = 'bg-gray';
+                else if (busNum >= 1000) bgClass = 'bg-blue';
+              }
+
+              let stateClass = 'state-offline';
+              let lastSignalTime = 0;
+              const liveVeh = liveVehicles[b.busId];
+              if (liveVeh && liveVeh.time) {
+                lastSignalTime = liveVeh.time * 1000;
+              } else if (b.lastSeen) {
+                lastSignalTime = new Date(b.lastSeen).getTime();
+                if (isNaN(lastSignalTime) && typeof b.lastSeen === 'string') {
+                   lastSignalTime = new Date(`${window.QUERY_DATE}T${b.lastSeen}`).getTime();
+                }
+              }
+
+              if (lastSignalTime > 0) {
+                const diffMinutes = (Date.now() - lastSignalTime) / (1000 * 60);
+                if (diffMinutes <= 5) {
+                  stateClass = 'state-live';
+                } else if (diffMinutes <= 15) {
+                  stateClass = 'state-delayed';
+                } else {
+                  stateClass = 'state-offline';
+                }
+              }
+
+              let specialClass = '';
+              if (!isNaN(busNum) && busNum >= 283 && busNum <= 295) {
+                specialClass = 'blink-special';
+              }
+
+              const classes = `bus-badge ${bgClass} ${stateClass} ${specialClass}`.trim();
+              
+              const title = stateClass === 'state-live' ? 'Sinal recente' : (stateClass === 'state-delayed' ? 'Sinal até 15min' : 'Inativo');
+              return `<span class="${classes}" data-bus="${b.busId}" title="${title}">${b.busId}</span>`;
             }).join('');
 
             return `<div class="line-row">
-              <span class="lr-badge${isUnalloc ? ' unallocated' : ''}">${isUnalloc ? '—' : 'L' + line}</span>
+              <span class="lr-badge${badgeClass}">${lineText}</span>
               <div class="lr-right">
-                <div class="lr-count">${buses.length} veículo${buses.length !== 1 ? 's' : ''}</div>
                 <div class="lr-buses">${busHTML}</div>
               </div>
             </div>`;
           }).join('');
 
-          body.querySelectorAll('.bus-id').forEach(el => {
+          body.querySelectorAll('.bus-badge').forEach(el => {
             el.addEventListener('click', () => {
               const v = liveVehicles[el.dataset.bus];
               if (v) map.flyTo({ center:[v.lon, v.lat], zoom:15, speed:1.5 });
