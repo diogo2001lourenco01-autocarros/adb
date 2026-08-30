@@ -164,9 +164,9 @@ if (env?.DB) {
       }
       .line-row:last-child { border-bottom:none; }
       .lr-badge {
-        flex-shrink:0; margin-top:2px;
-        font-family:'DINBlack'; font-size:16px;
-        color:#fff; min-width:45px; text-align:right;
+        flex-shrink:0; margin-top:1px;
+        font-family:'DINBlack'; font-size:14px;
+        color:#fff; min-width:40px; text-align:right;
         white-space:nowrap;
       }
       .lr-badge.unallocated { color:rgba(255,255,255,.5); }
@@ -177,9 +177,9 @@ if (env?.DB) {
         display:flex; flex-wrap:wrap; gap:5px; margin-top:2px;
       }
       .bus-badge {
-        font-family:'DINBlack'; font-size:15px; font-weight:900;
+        font-family:'DINBlack'; font-size:13px; font-weight:900;
         color:#fff;
-        border-radius:6px; padding:5px 9px;
+        border-radius:6px; padding:3px 6px;
         text-align:center;
         cursor:pointer; transition:filter .15s;
         display: inline-block;
@@ -190,8 +190,8 @@ if (env?.DB) {
       .bg-gray { background-color: #6b7280; }
       .bg-blue { background-color: #027cb7; }
 
-      .state-live { text-decoration: underline solid white 2.5px; text-underline-offset: 3px; }
-      .state-delayed { text-decoration: underline dashed white 2.5px; text-underline-offset: 3px; }
+      .state-live { text-decoration: underline solid white 2px; text-underline-offset: 2.5px; }
+      .state-delayed { text-decoration: underline dashed white 2px; text-underline-offset: 2.5px; }
       .state-offline { filter: brightness(0.4); }
 
       @keyframes specialBlink {
