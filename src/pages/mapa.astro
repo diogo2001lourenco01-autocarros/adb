@@ -651,6 +651,7 @@ if (env?.DB) {
               let bgClass = 'bg-blue';
               if (!isNaN(busNum)) {
                 if (busNum === 1079 || busNum === 1080 || busNum === 1081) bgClass = 'bg-yellow';
+                else if (busNum >= 423 && busNum <= 429) bgClass = 'bg-gray';
                 else if (busNum <= 899) bgClass = 'bg-red';
                 else if (busNum >= 900 && busNum <= 999) bgClass = 'bg-gray';
                 else if (busNum >= 1000) bgClass = 'bg-blue';
@@ -681,7 +682,11 @@ if (env?.DB) {
 
               let specialClass = '';
               if (!isNaN(busNum)) {
-                if ((busNum >= 283 && busNum <= 295) || busNum === 1079 || busNum === 1080 || busNum === 1081) {
+                if (
+                  (busNum >= 283 && busNum <= 295) || 
+                  busNum === 1079 || busNum === 1080 || busNum === 1081 ||
+                  busNum === 410 || busNum === 411
+                ) {
                   specialClass = 'blink-special';
                 }
               }
