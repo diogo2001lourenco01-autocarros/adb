@@ -165,11 +165,17 @@ if (env?.DB) {
       .alloc-body::-webkit-scrollbar { width:3px; }
       .alloc-body::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:3px; }
 
+      .category-header {
+        font-family: 'DINBlack'; font-size: 13px; color: rgba(255,255,255,0.4);
+        text-transform: uppercase; letter-spacing: 1px;
+        padding: 16px 16px 6px; margin-top: 4px;
+      }
+      .category-header:first-child { margin-top: 0; padding-top: 4px; }
+
       .line-row {
-        padding:6px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+        padding:6px 16px;
         display:flex; gap:10px; align-items:flex-start;
       }
-      .line-row:last-child { border-bottom:none; }
       .lr-badge {
         flex-shrink:0; margin-top:1px;
         font-family:'DINBlack'; font-size:14px;
@@ -614,7 +620,7 @@ if (env?.DB) {
           document.getElementById('alloc-count').textContent = totalBuses + ' veículos';
           document.getElementById('footer-live').textContent = isToday ? liveCount + ' em serviço agora' : '';
 
-          body.innerHTML = keys.map(line => {
+          const buildLineRowHTML = (line) => {
             const buses = sortBusesNumeric(allocations[line]);
             const isUnalloc = line === 'unallocated';
 
@@ -677,7 +683,40 @@ if (env?.DB) {
                 <div class="lr-buses">${busHTML}</div>
               </div>
             </div>`;
-          }).join('');
+          };
+
+          const diurnas = [];
+          const noturnas = [];
+          const outras = [];
+
+          keys.forEach(line => {
+            const num = Number(line);
+            if (line === 'unallocated') {
+              outras.push(line);
+            } else if (!isNaN(num)) {
+              if (num >= 1 && num <= 501) diurnas.push(line);
+              else if (num >= 900 && num <= 999) noturnas.push(line);
+              else outras.push(line);
+            } else {
+              outras.push(line);
+            }
+          });
+
+          let html = '';
+          if (diurnas.length > 0) {
+            html += `<div class="category-header">Linhas Diurnas</div>`;
+            html += diurnas.map(buildLineRowHTML).join('');
+          }
+          if (noturnas.length > 0) {
+            html += `<div class="category-header">Linhas Noturnas</div>`;
+            html += noturnas.map(buildLineRowHTML).join('');
+          }
+          if (outras.length > 0) {
+            html += `<div class="category-header">Outras</div>`;
+            html += outras.map(buildLineRowHTML).join('');
+          }
+
+          body.innerHTML = html;
 
           body.querySelectorAll('.bus-badge').forEach(el => {
             el.addEventListener('click', () => {
