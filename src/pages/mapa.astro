@@ -131,14 +131,14 @@ if (env?.DB) {
         font-size:12px; background:rgba(2,124,183,.2); color:#60b4f0;
         border:1px solid rgba(2,124,183,.3); border-radius:20px; padding:3px 10px;
       }
-      #loc-btn {
+      #loc-btn, #sat-btn {
         background: transparent; border: 1px solid rgba(255,255,255,.1); border-radius: 20px;
         color: rgba(255,255,255,.6); width: 26px; height: 26px; padding: 0;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer; transition: all .15s;
       }
-      #loc-btn:hover { background: rgba(255,255,255,.05); color: #fff; }
-      #loc-btn.active { background: rgba(2,124,183,.2); border-color: rgba(2,124,183,.3); color: #60b4f0; }
+      #loc-btn:hover, #sat-btn:hover { background: rgba(255,255,255,.05); color: #fff; }
+      #loc-btn.active, #sat-btn.active { background: rgba(2,124,183,.2); border-color: rgba(2,124,183,.3); color: #60b4f0; }
       
       .maplibregl-ctrl-geolocate { display: none !important; }
 
@@ -357,6 +357,13 @@ if (env?.DB) {
           <hr class="header-separator">
           
           <div class="header-stats-row">
+            <button id="sat-btn" title="Alternar Vista de Satélite">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </button>
             <button id="loc-btn" title="Minha Localização">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="3 11 22 2 13 21 11 13 3 11"/>
@@ -464,10 +471,42 @@ if (env?.DB) {
           document.getElementById('loc-btn').classList.remove('active');
         });
 
+        // Satellite Toggle
+        let isSatellite = false;
+        document.getElementById('sat-btn').addEventListener('click', () => {
+          if (!mapReady) return;
+          isSatellite = !isSatellite;
+          if (isSatellite) {
+            map.setLayoutProperty('satellite-layer', 'visibility', 'visible');
+            document.getElementById('sat-btn').classList.add('active');
+          } else {
+            map.setLayoutProperty('satellite-layer', 'visibility', 'none');
+            document.getElementById('sat-btn').classList.remove('active');
+          }
+        });
+
         let mapReady = false, pendingVehicles = null;
 
         map.on('load', () => {
           mapReady = true;
+
+          // Adicionar fonte e camada de satélite (Esri World Imagery)
+          map.addSource('satellite', {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+          });
+
+          map.addLayer({
+            id: 'satellite-layer',
+            type: 'raster',
+            source: 'satellite',
+            layout: { visibility: 'none' } // Oculto por defeito
+          });
+
           map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
 
           map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
