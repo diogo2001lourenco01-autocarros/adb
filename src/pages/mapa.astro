@@ -488,52 +488,61 @@ if (env?.DB) {
         let mapReady = false, pendingVehicles = null;
 
         map.on('load', () => {
-          mapReady = true;
+          Promise.all([
+            new Promise(r => map.loadImage('/static/images/azul.svg', (e, img) => { if (img) map.addImage('azul', img); r(); })),
+            new Promise(r => map.loadImage('/static/images/amarelo.svg', (e, img) => { if (img) map.addImage('amarelo', img); r(); })),
+            new Promise(r => map.loadImage('/static/images/cinzento.svg', (e, img) => { if (img) map.addImage('cinzento', img); r(); })),
+            new Promise(r => map.loadImage('/static/images/vermelho.svg', (e, img) => { if (img) map.addImage('vermelho', img); r(); }))
+          ]).then(() => {
+            mapReady = true;
 
-          // Adicionar fonte e camada de satélite (Esri World Imagery)
-          map.addSource('satellite', {
-            type: 'raster',
-            tiles: [
-              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-            ],
-            tileSize: 256,
-            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            // Adicionar fonte e camada de satélite (Esri World Imagery)
+            map.addSource('satellite', {
+              type: 'raster',
+              tiles: [
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+              ],
+              tileSize: 256,
+              attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            });
+
+            map.addLayer({
+              id: 'satellite-layer',
+              type: 'raster',
+              source: 'satellite',
+              layout: { visibility: 'none' } // Oculto por defeito
+            });
+
+            map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
+
+            map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
+              'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
+              'circle-color':['get','colorHex'],
+              'circle-opacity':0.15, 'circle-blur':1,
+            }});
+
+            map.addLayer({ id:'buses-dot', type:'symbol', source:'buses', layout:{
+              'icon-image': ['get','iconName'],
+              'icon-size': ['interpolate',['linear'],['zoom'],10,0.4,16,0.9],
+              'icon-allow-overlap': true,
+              'icon-ignore-placement': true,
+            }, paint:{
+              'icon-opacity': ['case', ['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']], 1, 0.5]
+            }});
+
+            map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
+              layout:{
+                'text-field':['get','busId'],
+                'text-font':['Noto Sans Bold'],
+                'text-size':10, 'text-offset':[0,1.7], 'text-anchor':'top',
+              },
+              paint:{
+                'text-color':'#fff','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,
+              },
+            });
+
+            if (pendingVehicles) applyVehicles(pendingVehicles);
           });
-
-          map.addLayer({
-            id: 'satellite-layer',
-            type: 'raster',
-            source: 'satellite',
-            layout: { visibility: 'none' } // Oculto por defeito
-          });
-
-          map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
-
-          map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
-            'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
-            'circle-opacity':0.15, 'circle-blur':1,
-          }});
-
-          map.addLayer({ id:'buses-dot', type:'circle', source:'buses', paint:{
-            'circle-radius':['interpolate',['linear'],['zoom'],10,6,16,13],
-            'circle-color':['case',['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']],'#027cb7','#4b5563'],
-            'circle-stroke-width':2.5,
-            'circle-stroke-color':'#fff',
-          }});
-
-          map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
-            layout:{
-              'text-field':['get','busId'],
-              'text-font':['Noto Sans Bold'],
-              'text-size':10, 'text-offset':[0,1.7], 'text-anchor':'top',
-            },
-            paint:{
-              'text-color':'#fff','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,
-            },
-          });
-
-          if (pendingVehicles) applyVehicles(pendingVehicles);
         });
 
         const popup = new maplibregl.Popup({ closeButton:true, maxWidth:'260px', offset:14 });
@@ -580,17 +589,29 @@ if (env?.DB) {
 
           const geojson = {
             type:'FeatureCollection',
-            features: vehicles.map(v => ({
-              type:'Feature',
-              geometry:{ type:'Point', coordinates:[v.lon, v.lat] },
-              properties:{
-                busId: String(v.busId),
-                lineId: v.lineId ?? null,
-                direction: v.direction ?? null,
-                time: v.time ?? null,
-                speed: v.speed ?? null,
-              },
-            })),
+            features: vehicles.map(v => {
+              const busNum = Number(v.busId);
+              let icon = 'azul';
+              let color = '#027cb7';
+              if (busNum === 1079 || busNum === 1080 || busNum === 1081) { icon = 'amarelo'; color = '#ffc900'; }
+              else if (busNum >= 423 && busNum <= 429) { icon = 'cinzento'; color = '#6b7280'; }
+              else if (busNum <= 899) { icon = 'vermelho'; color = '#e30613'; }
+              else if (busNum >= 900 && busNum <= 999) { icon = 'cinzento'; color = '#6b7280'; }
+
+              return {
+                type:'Feature',
+                geometry:{ type:'Point', coordinates:[v.lon, v.lat] },
+                properties:{
+                  busId: String(v.busId),
+                  lineId: v.lineId ?? null,
+                  direction: v.direction ?? null,
+                  time: v.time ?? null,
+                  speed: v.speed ?? null,
+                  iconName: icon,
+                  colorHex: color
+                },
+              };
+            }),
           };
 
           if (mapReady) map.getSource('buses').setData(geojson);
