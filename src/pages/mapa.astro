@@ -492,7 +492,8 @@ if (env?.DB) {
             new Promise(r => map.loadImage('/static/images/azul.svg', (e, img) => { if (img) map.addImage('azul', img); r(); })),
             new Promise(r => map.loadImage('/static/images/amarelo.svg', (e, img) => { if (img) map.addImage('amarelo', img); r(); })),
             new Promise(r => map.loadImage('/static/images/cinzento.svg', (e, img) => { if (img) map.addImage('cinzento', img); r(); })),
-            new Promise(r => map.loadImage('/static/images/vermelho.svg', (e, img) => { if (img) map.addImage('vermelho', img); r(); }))
+            new Promise(r => map.loadImage('/static/images/vermelho.svg', (e, img) => { if (img) map.addImage('vermelho', img); r(); })),
+            new Promise(r => map.loadImage('/static/images/inativo.svg', (e, img) => { if (img) map.addImage('inativo', img); r(); }))
           ]).then(() => {
             mapReady = true;
 
@@ -527,7 +528,7 @@ if (env?.DB) {
               'icon-allow-overlap': true,
               'icon-ignore-placement': true,
             }, paint:{
-              'icon-opacity': ['case', ['all',['!=',['get','lineId'],null],['!=',['get','lineId'],'null']], 1, 0.5]
+              'icon-opacity': 1
             }});
 
             map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
@@ -597,6 +598,12 @@ if (env?.DB) {
               else if (busNum >= 423 && busNum <= 429) { icon = 'cinzento'; color = '#6b7280'; }
               else if (busNum <= 899) { icon = 'vermelho'; color = '#e30613'; }
               else if (busNum >= 900 && busNum <= 999) { icon = 'cinzento'; color = '#6b7280'; }
+
+              const hasLine = v.lineId !== null && v.lineId !== 'null' && v.lineId !== undefined && v.lineId !== 'undefined';
+              if (!hasLine) {
+                icon = 'inativo';
+                color = '#6b7280';
+              }
 
               return {
                 type:'Feature',
