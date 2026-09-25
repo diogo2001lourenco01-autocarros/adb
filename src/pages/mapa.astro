@@ -488,87 +488,52 @@ if (env?.DB) {
         let mapReady = false, pendingVehicles = null;
 
         map.on('load', () => {
-          const loadSvg = (name, url) => new Promise(async r => {
-            try {
-              const res = await fetch(url);
-              let svgText = await res.text();
-              const blob = new Blob([svgText], { type: 'image/svg+xml' });
-              const blobUrl = URL.createObjectURL(blob);
-              const img = new Image();
-              img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.width || 56;
-                canvas.height = img.height || 56;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                map.addImage(name, ctx.getImageData(0, 0, canvas.width, canvas.height));
-                URL.revokeObjectURL(blobUrl);
-                r();
-              };
-              img.onerror = () => {
-                URL.revokeObjectURL(blobUrl);
-                r();
-              };
-              img.src = blobUrl;
-            } catch (e) { r(); }
+          mapReady = true;
+
+          // Adicionar fonte e camada de satélite (Esri World Imagery)
+          map.addSource('satellite', {
+            type: 'raster',
+            tiles: [
+              'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            tileSize: 256,
+            attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
           });
 
-          Promise.all([
-            loadSvg('azul', '/static/images/azul.svg'),
-            loadSvg('amarelo', '/static/images/amarelo.svg'),
-            loadSvg('cinzento', '/static/images/cinzento.svg'),
-            loadSvg('vermelho', '/static/images/vermelho.svg'),
-            loadSvg('inativo', '/static/images/inativo.svg')
-          ]).then(() => {
-            mapReady = true;
-
-            // Adicionar fonte e camada de satélite (Esri World Imagery)
-            map.addSource('satellite', {
-              type: 'raster',
-              tiles: [
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-              ],
-              tileSize: 256,
-              attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-            });
-
-            map.addLayer({
-              id: 'satellite-layer',
-              type: 'raster',
-              source: 'satellite',
-              layout: { visibility: 'none' } // Oculto por defeito
-            });
-
-            map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
-
-            map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
-              'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
-              'circle-color':['get','colorHex'],
-              'circle-opacity':0.15, 'circle-blur':1,
-            }});
-
-            map.addLayer({ id:'buses-dot', type:'symbol', source:'buses', layout:{
-              'icon-image': ['get','iconName'],
-              'icon-size': ['interpolate',['linear'],['zoom'],10,0.4,16,0.9],
-              'icon-allow-overlap': true,
-              'icon-ignore-placement': true,
-            }, paint:{
-              'icon-opacity': 1
-            }});
-
-            map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
-              layout:{
-                'text-field':['get','busId'],
-                'text-font':['Noto Sans Bold'],
-                'text-size':10, 'text-offset':[0,1.7], 'text-anchor':'top',
-              },
-              paint:{
-                'text-color':'#fff','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,
-              },
-            });
-
-            if (pendingVehicles) applyVehicles(pendingVehicles);
+          map.addLayer({
+            id: 'satellite-layer',
+            type: 'raster',
+            source: 'satellite',
+            layout: { visibility: 'none' } // Oculto por defeito
           });
+
+          map.addSource('buses', { type:'geojson', data:{ type:'FeatureCollection', features:[] } });
+
+          map.addLayer({ id:'buses-glow', type:'circle', source:'buses', paint:{
+            'circle-radius':['interpolate',['linear'],['zoom'],10,16,16,28],
+            'circle-color':['get','colorHex'],
+            'circle-opacity':0.15, 'circle-blur':1,
+          }});
+
+          map.addLayer({ id:'buses-dot', type:'circle', source:'buses', paint:{
+            'circle-radius':['interpolate',['linear'],['zoom'],10,6,16,13],
+            'circle-color':['get','fillColor'],
+            'circle-stroke-width':2.5,
+            'circle-stroke-color':['get','strokeColor']
+          }});
+
+          map.addLayer({ id:'buses-label', type:'symbol', source:'buses', minzoom:14,
+            layout:{
+              'text-field':['get','busId'],
+              'text-font':['Noto Sans Bold'],
+              'text-size':10, 'text-offset':[0,1.7], 'text-anchor':'top',
+            },
+            paint:{
+              'text-color':'#fff','text-halo-color':'rgba(0,0,0,0.8)','text-halo-width':1.5,
+            },
+          });
+
+          if (pendingVehicles) applyVehicles(pendingVehicles);
         });
 
         const popup = new maplibregl.Popup({ closeButton:true, maxWidth:'260px', offset:14 });
@@ -625,9 +590,15 @@ if (env?.DB) {
               else if (busNum >= 900 && busNum <= 999) { icon = 'cinzento'; color = '#6b7280'; }
 
               const hasLine = v.lineId !== null && v.lineId !== 'null' && v.lineId !== undefined && v.lineId !== 'undefined';
+              
+              let fillColor = color;
+              let strokeColor = '#ffffff';
+
               if (!hasLine) {
                 icon = 'inativo';
-                color = '#6b7280';
+                fillColor = '#ffffff';
+                strokeColor = '#6b7280';
+                color = '#6b7280'; // for the glow
               }
 
               return {
@@ -640,7 +611,9 @@ if (env?.DB) {
                   time: v.time ?? null,
                   speed: v.speed ?? null,
                   iconName: icon,
-                  colorHex: color
+                  colorHex: color,
+                  fillColor: fillColor,
+                  strokeColor: strokeColor
                 },
               };
             }),
