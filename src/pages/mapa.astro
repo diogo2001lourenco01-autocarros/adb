@@ -202,7 +202,7 @@ if (env?.DB) {
       .bg-red { background-color: #e30613; }
       .bg-gray { background-color: #6b7280; }
       .bg-blue { background-color: #027cb7; }
-      .bg-yellow { background-color: #eab308; color: #000; }
+      .bg-yellow { background-color: #ffc900; color: #000; }
       .bg-yellow.state-live { text-decoration-color: #000; }
       .bg-yellow.state-delayed { text-decoration-color: #000; }
 
@@ -213,7 +213,7 @@ if (env?.DB) {
       .alerts-wrapper { padding: 12px 16px 0; display:flex; flex-direction:column; gap:8px; }
       .special-alert {
         background: rgba(234, 179, 8, 0.15); border: 1px solid rgba(234, 179, 8, 0.3);
-        color: #fde047; padding: 10px 14px; border-radius: 8px;
+        color: #ffc900; padding: 10px 14px; border-radius: 8px;
         font-family: 'DINMedium'; font-size: 13px; text-align: center; letter-spacing: 0.5px;
         animation: pulseAlert 2s infinite;
       }
@@ -767,7 +767,7 @@ if (env?.DB) {
             if (v && v.time && v.lineId && v.lineId !== 'null' && v.lineId !== 'undefined') {
               const diffMinutes = (Date.now() - v.time * 1000) / (1000 * 60);
               if (diffMinutes <= 5) {
-                 alertsHtml += `<div class="special-alert">⚠️ ${specialBus} A CIRCULAR NA ${v.lineId}</div>`;
+                 alertsHtml += `<div class="special-alert">⚠️ ${specialBus} VEÍCULO A CIRCULAR NA ${v.lineId}</div>`;
               }
             }
           });
@@ -809,7 +809,7 @@ if (env?.DB) {
 
           const lines = [];
           lines.push(`🔵 ➡ Lista do Dia | ${dateStr}`);
-          lines.push(`(Atualizado a: ${updatedDate} - ${updatedTime})`);
+          lines.push(`(Última atualização: ${updatedDate} - ${updatedTime})`);
           lines.push('');
 
           const numericKeys = Object.keys(allocations)
@@ -829,7 +829,7 @@ if (env?.DB) {
               lines.push(`${n} - ${buses}`);
             });
           } else {
-            lines.push('Sem dados');
+            lines.push('Em atualização');
           }
           lines.push('');
 
@@ -842,7 +842,7 @@ if (env?.DB) {
               lines.push(`${n} - ${buses}`);
             });
           } else {
-            lines.push('Sem dados');
+            lines.push('Em atualização');
           }
           lines.push('');
 
