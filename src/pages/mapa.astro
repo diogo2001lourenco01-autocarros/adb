@@ -488,11 +488,29 @@ if (env?.DB) {
         let mapReady = false, pendingVehicles = null;
 
         map.on('load', () => {
-          const loadSvg = (name, url) => new Promise(r => {
-            const img = new Image();
-            img.onload = () => { map.addImage(name, img); r(); };
-            img.onerror = () => { r(); };
-            img.src = url;
+          const loadSvg = (name, url) => new Promise(async r => {
+            try {
+              const res = await fetch(url);
+              let svgText = await res.text();
+              const blob = new Blob([svgText], { type: 'image/svg+xml' });
+              const blobUrl = URL.createObjectURL(blob);
+              const img = new Image();
+              img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width || 56;
+                canvas.height = img.height || 56;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                map.addImage(name, ctx.getImageData(0, 0, canvas.width, canvas.height));
+                URL.revokeObjectURL(blobUrl);
+                r();
+              };
+              img.onerror = () => {
+                URL.revokeObjectURL(blobUrl);
+                r();
+              };
+              img.src = blobUrl;
+            } catch (e) { r(); }
           });
 
           Promise.all([
