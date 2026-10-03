@@ -279,70 +279,218 @@ const outras = routes.filter(r => {
         text-align: center;
       }
 
-      .direction-block {
-        margin-bottom: 20px;
+      /* ── DIRECTION SWITCHER ─────────────────────────────────────── */
+      .dir-switch {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       }
-      .direction-block:last-child {
-        margin-bottom: 0;
-      }
-      .direction-header {
+      .dir-tab-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 8px 14px;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'DINMedium', Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        cursor: pointer;
         display: flex;
         align-items: center;
         gap: 8px;
-        font-family: 'DINBlack';
-        font-size: 13px;
+        transition: all 0.15s ease;
+      }
+      .dir-tab-btn:hover {
+        background: rgba(255, 255, 255, 0.09);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+      .dir-tab-btn.active {
+        background: rgba(2, 124, 183, 0.22);
         color: #60b4f0;
-        margin-bottom: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        border-color: rgba(2, 124, 183, 0.5);
+        font-family: 'DINBlack', Helvetica, Arial, sans-serif;
+      }
+      .dir-tab-badge {
+        font-size: 11px;
+        background: rgba(0, 0, 0, 0.35);
+        padding: 2px 7px;
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.65);
+        font-family: 'DINMedium', sans-serif;
+      }
+      .dir-tab-btn.active .dir-tab-badge {
+        background: rgba(2, 124, 183, 0.4);
+        color: #fff;
       }
 
-      .stops-timeline {
+      /* ── TRANSIT SPINE (ESPINHA DE PARAGENS) ────────────────────── */
+      .spine-container {
         position: relative;
-        padding-left: 20px;
+        padding: 4px 0 12px;
+      }
+
+      /* Vertical continuous line */
+      .spine-rail {
+        position: absolute;
+        left: 17px;
+        top: 20px;
+        bottom: 20px;
+        width: 3px;
+        background: linear-gradient(180deg, #027cb7 0%, #0290d4 70%, #22c55e 100%);
+        border-radius: 2px;
+        z-index: 1;
+      }
+
+      .spine-stops-list {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-      }
-      .stops-timeline::before {
-        content: '';
-        position: absolute;
-        left: 5px;
-        top: 6px;
-        bottom: 6px;
-        width: 2px;
-        background: rgba(2, 124, 183, 0.35);
+        gap: 0;
+        position: relative;
+        z-index: 2;
       }
 
-      .stop-item {
-        position: relative;
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.85);
-        line-height: 1.4;
+      .spine-stop-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 8px 6px;
+        border-radius: 8px;
+        transition: background 0.15s ease;
       }
-      .stop-item::before {
-        content: '';
-        position: absolute;
-        left: -18px;
-        top: 5px;
-        width: 6px;
-        height: 6px;
+      .spine-stop-row:hover {
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      /* Node icon wrap (covers rail cleanly) */
+      .spine-node-wrap {
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: #171c26; /* match expanded card bg */
+        border-radius: 50%;
+      }
+
+      /* Terminal Partida (Origin) */
+      .spine-node-terminal-start {
+        width: 22px;
+        height: 22px;
         border-radius: 50%;
         background: #027cb7;
-        box-shadow: 0 0 0 2px #0c0e14;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 0 0 3px rgba(2, 124, 183, 0.25);
       }
-      .stop-item:first-child::before,
-      .stop-item:last-child::before {
-        width: 8px;
-        height: 8px;
-        left: -19px;
-        top: 4px;
+
+      /* Paragem Intermédia */
+      .spine-node-intermediate {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #171c26;
+        border: 2.5px solid #027cb7;
+        transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+      }
+      .spine-stop-row:hover .spine-node-intermediate {
         background: #60b4f0;
+        border-color: #60b4f0;
+        transform: scale(1.3);
       }
-      .stop-code {
-        color: rgba(255, 255, 255, 0.4);
+
+      /* Terminal Término (Destination) */
+      .spine-node-terminal-end {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #22c55e;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+      }
+
+      /* Stop information */
+      .spine-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .spine-name-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        flex-wrap: wrap;
+      }
+
+      .spine-name {
+        font-family: 'DINMedium', Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.88);
+        letter-spacing: 0.2px;
+      }
+      .spine-stop-row.is-terminal .spine-name {
+        font-family: 'DINBlack', Helvetica, Arial, sans-serif;
+        color: #fff;
+        font-size: 14.5px;
+      }
+
+      /* Badges */
+      .spine-badges {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .stop-code-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 5px;
+        padding: 2px 7px;
+        font-family: 'DINBlack', monospace;
         font-size: 11px;
-        margin-left: 6px;
+        color: rgba(255, 255, 255, 0.85);
+        letter-spacing: 0.4px;
+      }
+      .stop-code-badge .prefix {
+        color: rgba(255, 255, 255, 0.35);
+        font-size: 10px;
+        font-family: monospace;
+      }
+
+      .terminal-pill {
+        font-family: 'DINBlack', sans-serif;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 2px 8px;
+        border-radius: 4px;
+      }
+      .terminal-pill.start {
+        background: rgba(2, 124, 183, 0.2);
+        color: #60b4f0;
+        border: 1px solid rgba(2, 124, 183, 0.35);
+      }
+      .terminal-pill.end {
+        background: rgba(34, 197, 94, 0.18);
+        color: #4ade80;
+        border: 1px solid rgba(34, 197, 94, 0.35);
       }
 
       .empty-state {
@@ -512,35 +660,112 @@ const outras = routes.filter(r => {
           return;
         }
 
-        const directionsHtml = data.directions.map((dir, idx) => {
-          const headsign = dir.headsign ? `Sentido: ${dir.headsign}` : `Sentido ${idx === 0 ? 'A' : 'B'}`;
-          const stopsHtml = dir.stops && dir.stops.length > 0
-            ? dir.stops.map(s => `
-                <div class="stop-item">
-                  <span>${s.name}</span>
-                  ${s.id ? `<span class="stop-code">#${s.id}</span>` : ''}
+        const directions = data.directions;
+        let activeDir = 0;
+
+        function renderSpine() {
+          let html = '';
+
+          // If multiple directions, show direction switcher tabs
+          if (directions.length > 1) {
+            html += '<div class="dir-switch">';
+            directions.forEach((d, idx) => {
+              const title = d.headsign ? d.headsign : (idx === 0 ? 'Sentido A' : 'Sentido B');
+              const count = d.stops ? d.stops.length : 0;
+              html += `
+                <button type="button" class="dir-tab-btn ${idx === activeDir ? 'active' : ''}" data-dir-index="${idx}">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                  <span>Sentido: <strong>${title}</strong></span>
+                  <span class="dir-tab-badge">${count} paragens</span>
+                </button>
+              `;
+            });
+            html += '</div>';
+          }
+
+          const currentDir = directions[activeDir] || directions[0];
+          const stops = currentDir.stops || [];
+
+          if (stops.length === 0) {
+            html += '<div class="details-loading">Sem paragens registadas para este sentido.</div>';
+            container.innerHTML = html;
+            bindDirEvents();
+            return;
+          }
+
+          html += '<div class="spine-container">';
+          html += '<div class="spine-rail"></div>';
+          html += '<div class="spine-stops-list">';
+
+          stops.forEach((stop, index) => {
+            const isFirst = index === 0;
+            const isLast = index === stops.length - 1;
+            const isTerminal = isFirst || isLast;
+            const stopCode = stop.code || stop.id;
+
+            let nodeHtml = '';
+            let terminalTag = '';
+
+            if (isFirst) {
+              nodeHtml = `
+                <div class="spine-node-terminal-start" title="Terminal de Partida">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="12" r="6"></circle>
+                  </svg>
                 </div>
-              `).join('')
-            : '<div style="font-size:12px;color:rgba(255,255,255,0.4);">Sem paragens registadas.</div>';
+              `;
+              terminalTag = '<span class="terminal-pill start">Partida</span>';
+            } else if (isLast) {
+              nodeHtml = `
+                <div class="spine-node-terminal-end" title="Terminal de Chegada">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                    <line x1="4" y1="22" x2="4" y2="15"></line>
+                  </svg>
+                </div>
+              `;
+              terminalTag = '<span class="terminal-pill end">Término</span>';
+            } else {
+              nodeHtml = '<div class="spine-node-intermediate" title="Paragem Intermédia"></div>';
+            }
 
-          return `
-            <div class="direction-block">
-              <div class="direction-header">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 16 16 12 12 8"></polyline>
-                  <line x1="8" y1="12" x2="16" y2="12"></line>
-                </svg>
-                ${headsign}
+            html += `
+              <div class="spine-stop-row ${isTerminal ? 'is-terminal' : 'is-intermediate'}">
+                <div class="spine-node-wrap">
+                  ${nodeHtml}
+                </div>
+                <div class="spine-info">
+                  <div class="spine-name-group">
+                    <span class="spine-name">${stop.name}</span>
+                    ${terminalTag}
+                  </div>
+                  <div class="spine-badges">
+                    ${stopCode ? `<span class="stop-code-badge"><span class="prefix">#</span>${stopCode}</span>` : ''}
+                  </div>
+                </div>
               </div>
-              <div class="stops-timeline">
-                ${stopsHtml}
-              </div>
-            </div>
-          `;
-        }).join('');
+            `;
+          });
 
-        container.innerHTML = directionsHtml;
+          html += '</div></div>';
+          container.innerHTML = html;
+          bindDirEvents();
+        }
+
+        function bindDirEvents() {
+          container.querySelectorAll('.dir-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              activeDir = parseInt(btn.getAttribute('data-dir-index'), 10) || 0;
+              renderSpine();
+            });
+          });
+        }
+
+        renderSpine();
       }
 
       // Search filtering
