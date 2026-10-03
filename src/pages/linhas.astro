@@ -1,8 +1,13 @@
 ---
 import { getRoutesWithStops } from "../lib/gtfs";
 
-// Load routes with stops at build time
-const routes = await getRoutesWithStops();
+// Load routes with stops at build time safely
+let routes = [];
+try {
+  routes = await getRoutesWithStops();
+} catch (e) {
+  console.error('Failed to load GTFS routes:', e);
+}
 ---
 <html lang="en">
 <head>
@@ -16,32 +21,33 @@ const routes = await getRoutesWithStops();
 </head>
 <body>
   <h1>Linhas</h1>
-  {routes.length === 0 && (
+  {(!routes || routes.length === 0) && (
     <p>No routes found in GTFS data.</p>
   )}
-  <ul>
-    {routes.map((route) => (
-      <li class="route" id={`route-${route.route_id}`}>
-        <span class="toggle-btn" data-route-id="{route.route_id}">
-          {route.short_name || route.long_name || route.route_id}
-        </span>
-        <div class="stop-list" id={`stops-${route.route_id}`}>
-          {route.stops.length === 0 ? (
-            <p>No stops for this route.</p>
-          ) : (
-            <ul>
-              {route.stops.map((stop) => (
-                <li>
-                  {stop.name}
-                  {stop.code ? ` (Code: ${stop.code})` : ""}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </li>
-    ))}
-  </ul>
+  {routes?.length > 0 && (
+    <ul>
+      {routes.map((route) => (
+        <li class="route" id={`route-${route.route_id}`}>
+          <span class="toggle-btn" data-route-id={route.route_id}>
+            {route.short_name || route.long_name || route.route_id}
+          </span>
+          <div class="stop-list" id={`stops-${route.route_id}`}>
+            {route.stops.length === 0 ? (
+              <p>No stops for this route.</p>
+            ) : (
+              <ul>
+                {route.stops.map((stop) => (
+                  <li>
+                    {stop.name}{stop.code ? ` (Code: ${stop.code})` : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
   <script>
     // Simple toggle functionality for each route
     document.addEventListener('click', (e) => {
