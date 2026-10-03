@@ -1,0 +1,7 @@
+fare_id,price,currency_type,payment_method,transfers,transfer_duration
+1_coroa-zona_1,1.55,EUR,0,0,3600
+1_coroa-zona_2,1.55,EUR,0,0,3600
+2_coroa-zona_1!2,2.00,EUR,0,0,5400
+1_coroa-zona_1_Transbordo,1.55,EUR,0,1,3600
+1_coroa-zona_2_Transbordo,1.55,EUR,0,1,3600
+2_coroa-zona_1!2_Transbordo,2.00,EUR,0,1,5400

@@ -1,0 +1,9 @@
+fare_id,route_id,origin_id,destination_id,contains_id
+1_coroa-zona_1,,,,1
+1_coroa-zona_1_Transbordo,,,,1
+1_coroa-zona_2,,,,2
+1_coroa-zona_2_Transbordo,,,,2
+2_coroa-zona_1!2,,,,1
+2_coroa-zona_1!2,,,,2
+2_coroa-zona_1!2_Transbordo,,,,1
+2_coroa-zona_1!2_Transbordo,,,,2

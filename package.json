@@ -29,6 +29,7 @@
     "astro": "5.16.9",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "csv-parse": "^7.0.3",
     "lucide-react": "0.555.0",
     "react": "19.2.1",
     "react-dom": "19.2.1",
@@ -47,7 +48,8 @@
   "private": true,
   "scripts": {
     "astro": "astro",
-    "build": "astro build",
+    "parse-gtfs": "node scripts/parse-gtfs.js",
+    "build": "npm run parse-gtfs && astro build",
     "cf-typegen": "wrangler types",
     "check": "npm run build && npm run wrangler:wrapper && wrangler deploy --dry-run",
     "db:migrate": "wrangler d1 migrations apply DB --local",

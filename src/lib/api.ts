@@ -22,9 +22,7 @@ export const validateApiToken = async (request, apiToken) => {
     }
 
     if (!apiToken) {
-      console.error(
-        "No API token provided. Set one as an environment variable.",
-      );
+      console.error("No API token provided. Set one as an environment variable.");
       return false;
     }
 
@@ -55,43 +53,27 @@ export const validateApiToken = async (request, apiToken) => {
 export const getCustomers = async (baseUrl, apiToken) => {
   const url = `${baseUrl}/api/customers`;
   const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+    headers: { Authorization: `Bearer ${apiToken}` },
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      customers: data.customers,
-      success: true,
-    };
+    return { customers: data.customers, success: true };
   } else {
     console.error("Failed to fetch customers");
-    return {
-      customers: [],
-      success: false,
-    };
+    return { customers: [], success: false };
   }
 };
 
 export const getCustomer = async (id, baseUrl, apiToken) => {
   const response = await fetch(baseUrl + "/api/customers/" + id, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+    headers: { Authorization: `Bearer ${apiToken}` },
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      customer: data.customer,
-      success: true,
-    };
+    return { customer: data.customer, success: true };
   } else {
-    console.error("Failed to fetch customers");
-    return {
-      customer: null,
-      success: false,
-    };
+    console.error("Failed to fetch customer"); // Corrigido
+    return { customer: null, success: false };
   }
 };
 
@@ -106,16 +88,10 @@ export const createCustomer = async (baseUrl, apiToken, customer) => {
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      customer: data.customer,
-      success: true,
-    };
+    return { customer: data.customer, success: true };
   } else {
     console.error("Failed to create customer");
-    return {
-      customer: null,
-      success: false,
-    };
+    return { customer: null, success: false };
   }
 };
 
@@ -130,98 +106,61 @@ export const createSubscription = async (baseUrl, apiToken, subscription) => {
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      subscription: data.subscription,
-      success: true,
-    };
+    return { subscription: data.subscription, success: true };
   } else {
     console.error("Failed to create subscription");
-    return {
-      subscription: null,
-      success: false,
-    };
+    return { subscription: null, success: false };
   }
 };
 
 export const getSubscriptions = async (baseUrl, apiToken) => {
   const response = await fetch(baseUrl + "/api/subscriptions", {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+    headers: { Authorization: `Bearer ${apiToken}` },
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      subscriptions: data.subscriptions,
-      success: true,
-    };
+    return { subscriptions: data.subscriptions, success: true };
   } else {
     console.error("Failed to fetch subscriptions");
-    return {
-      subscriptions: [],
-      success: false,
-    };
+    return { subscriptions: [], success: false };
   }
 };
 
 export const getSubscription = async (id, baseUrl, apiToken) => {
   const response = await fetch(baseUrl + "/api/subscriptions/" + id, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+    headers: { Authorization: `Bearer ${apiToken}` },
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      subscription: data.subscription,
-      success: true,
-    };
+    return { subscription: data.subscription, success: true };
   } else {
     console.error("Failed to fetch subscription");
-    return {
-      subscription: null,
-      success: false,
-    };
+    return { subscription: null, success: false };
   }
 };
 
 export const getCustomerSubscriptions = async (baseUrl, apiToken) => {
   const response = await fetch(baseUrl + "/api/customer_subscriptions", {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+    headers: { Authorization: `Bearer ${apiToken}` },
   });
   if (response.ok) {
     const data = await response.json();
-    return {
-      customer_subscriptions: data.customer_subscriptions,
-      success: true,
-    };
+    return { customer_subscriptions: data.customer_subscriptions, success: true };
   } else {
     console.error("Failed to fetch customer subscriptions");
-    return {
-      customer_subscriptions: [],
-      success: false,
-    };
+    return { customer_subscriptions: [], success: false };
   }
 };
 
 export const runCustomerWorkflow = async (id, baseUrl, apiToken) => {
   const response = await fetch(baseUrl + `/api/customers/${id}/workflow`, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+    headers: { Authorization: `Bearer ${apiToken}` },
     method: "POST",
   });
   if (response.ok) {
-    const data = await response.json();
-    return {
-      success: true,
-    };
+    return { success: true }; // Corrigido: removido o response.json() do corpo vazio
   } else {
-    console.error("Failed to fetch customer subscriptions");
-    return {
-      success: false,
-    };
+    console.error("Failed to run customer workflow"); // Corrigido
+    return { success: false };
   }
 };

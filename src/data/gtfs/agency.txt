@@ -1,0 +1,2 @@
+agency_id,agency_name,agency_url,agency_timezone,agency_phone,agency_lang,agency_fare_url
+TUB,Transportes Urbanos de Braga,https://www.tub.pt,Europe/Lisbon,253606890,pt,https://tub.pt/tarifario/

@@ -1,6 +1,7 @@
 // Utility functions to parse GTFS CSV files for routes and stops.
 import fs from "fs";
 import path from "path";
+import readline from "readline";
 import { parse } from "csv-parse/sync";
 
 // Path to GTFS data folder (relative to project root)
@@ -21,7 +22,6 @@ function loadCsv(fileName: string) {
 
 /**
  * Get all routes from routes.txt.
- * Returns array of { route_id, route_short_name, route_long_name }.
  */
 export function getRoutes() {
   const records = loadCsv("routes.txt");
@@ -34,7 +34,6 @@ export function getRoutes() {
 
 /**
  * Get stops information from stops.txt.
- * Returns mapping stop_id -> { stop_name, stop_code }.
  */
 export function getStopsMap() {
   const records = loadCsv("stops.txt");
@@ -49,11 +48,10 @@ export function getStopsMap() {
 }
 
 /**
- * Get mapping route_id -> Set of stop_ids that appear in its trips.
+ * Get mapping route_id -> Set of stop_ids using stream reading for stop_times.txt.
  */
-export function getRouteStopsMap() {
-  const trips = loadCsv("trips.txt"); // trips.txt contains route_id, trip_id
-  const stopTimes = loadCsv("stop_times.txt"); // contains trip_id, stop_id
+export async function getRouteStopsMap() {
+  const trips = loadCsv("trips.txt");
 
   // Build trip_id -> route_id map
   const tripToRoute: Record<string, string> = {};
@@ -63,26 +61,47 @@ export function getRouteStopsMap() {
     }
   }
 
-  // Build route_id -> Set<stop_id>
+  const filePath = path.join(GTFS_DATA_DIR, "stop_times.txt");
+  const fileStream = fs.createReadStream(filePath);
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity,
+  });
+
   const routeStops: Record<string, Set<string>> = {};
-  for (const st of stopTimes) {
-    const tripId = st.trip_id;
-    const stopId = st.stop_id;
+  let tripIdx = -1;
+  let stopIdx = -1;
+
+  for await (const line of rl) {
+    if (!line.trim()) continue;
+    const parts = line.split(",").map((p) => p.trim().replace(/^"|"$/g, ""));
+
+    if (tripIdx === -1) {
+      tripIdx = parts.indexOf("trip_id");
+      stopIdx = parts.indexOf("stop_id");
+      continue;
+    }
+
+    const tripId = parts[tripIdx];
+    const stopId = parts[stopIdx];
     const routeId = tripToRoute[tripId];
-    if (!routeId) continue;
-    if (!routeStops[routeId]) routeStops[routeId] = new Set();
-    routeStops[routeId].add(stopId);
+
+    if (routeId && stopId) {
+      if (!routeStops[routeId]) routeStops[routeId] = new Set();
+      routeStops[routeId].add(stopId);
+    }
   }
+
   return routeStops;
 }
 
 /**
  * Get routes enriched with their stop details.
  */
-export function getRoutesWithStops() {
+export async function getRoutesWithStops() {
   const routes = getRoutes();
   const stopsMap = getStopsMap();
-  const routeStopsMap = getRouteStopsMap();
+  const routeStopsMap = await getRouteStopsMap();
 
   return routes.map((r) => {
     const stopIds = routeStopsMap[r.route_id] ?? new Set();
@@ -94,7 +113,7 @@ export function getRoutesWithStops() {
         code: info.code,
       };
     });
-    // Sort stops alphabetically by name
+
     stops.sort((a, b) => a.name.localeCompare(b.name));
     return {
       ...r,

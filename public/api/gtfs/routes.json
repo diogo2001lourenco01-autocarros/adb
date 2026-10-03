@@ -1,0 +1,562 @@
+[
+  {
+    "id": "2",
+    "short_name": "2",
+    "long_name": "PONTE DE PRADO - BOM JESUS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "3",
+    "short_name": "3",
+    "long_name": "AVENIDA CENTRAL - RUÃES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "5",
+    "short_name": "5",
+    "long_name": "DUME - QUINTA DA CAPELA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "6",
+    "short_name": "6",
+    "long_name": "AVENIDA GENERAL NORTON DE MATOS - GONDIZALVES/SEMELHE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "7",
+    "short_name": "7",
+    "long_name": "S. MAMEDE D' ESTE - CELEIRÓS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "8",
+    "short_name": "8",
+    "long_name": "RUA 25 DE ABRIL - SETE FONTES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "9",
+    "short_name": "9",
+    "long_name": "RUÃES - NOGUEIRA (BARRAL)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "12",
+    "short_name": "12",
+    "long_name": "AVENIDA DA LIBERDADE - LAGEOSA/PEDRALVA VIA GUALTAR",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "13",
+    "short_name": "13",
+    "long_name": "AVENIDA GENERAL NORTON DE MATOS- LAGEOSA/PEDRALVA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "14",
+    "short_name": "14",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - PRISCOS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "18",
+    "short_name": "18",
+    "long_name": "RUA DO RAIO - PINHEIRO DO BICHO VIA ESPORÕES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "19",
+    "short_name": "19",
+    "long_name": "AREAL - BOAVISTA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "20",
+    "short_name": "20",
+    "long_name": "AVENIDA DA LIBERDADE - ESCUDEIROS VIA PONTE NOVA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "21",
+    "short_name": "21",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - TADIM",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "23",
+    "short_name": "23",
+    "long_name": "AVENIDA GENERAL NORTON DE MATOS - ESPINHO/SAMEIRO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "24",
+    "short_name": "24",
+    "long_name": "SEQUEIRA - GUALTAR",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "31",
+    "short_name": "31",
+    "long_name": "RUA 25 DE ABRIL - S. MAMEDE D' ESTE (ROLA)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "32",
+    "short_name": "32",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - AVELEDA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "33",
+    "short_name": "33",
+    "long_name": "AVENIDA CENTRAL - CABREIROS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "34",
+    "short_name": "34",
+    "long_name": "AVENIDA DA LIBERDADE - GUISANDE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "35",
+    "short_name": "35",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - TEBOSA/GUISANDE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "36",
+    "short_name": "36",
+    "long_name": "AVENIDA GENERAL NORTON DE MATOS - S. JULIÃO DE PASSOS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "37",
+    "short_name": "37",
+    "long_name": "AVENIDA GENERAL NORTON DE MATOS - CUNHA/ARENTIM",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "38",
+    "short_name": "38",
+    "long_name": "RUA DO RAIO - MORREIRA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "39",
+    "short_name": "39",
+    "long_name": "RUA DO RAIO - TRANDEIRAS VIA ESPORÕES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "40",
+    "short_name": "40",
+    "long_name": "CIRCUITO URBANO I",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "41",
+    "short_name": "41",
+    "long_name": "CIRCUITO URBANO II",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "42",
+    "short_name": "42",
+    "long_name": "RESIDÊNCIA UNIVERSITÁRIA - UNIVERSIDADE DO MINHO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "43",
+    "short_name": "43",
+    "long_name": "ESTAÇÃO CF - UNIVERSIDADE DO MINHO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "45",
+    "short_name": "45",
+    "long_name": "NOGUEIRA (HOSPITAL PRIVADO) - PONTE DO BICO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "46",
+    "short_name": "46",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - PÓVOA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "50",
+    "short_name": "50",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - MOSTEIRO DE TIBÃES/PADIM DA GRAÇA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "52",
+    "short_name": "52",
+    "long_name": "MONTE D' ARCOS - MERELIM (S. ROQUE)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "53",
+    "short_name": "53",
+    "long_name": "AVENIDA GENERAL NORTON DE MATOS - SEMELHE/GONDIZALVES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "54",
+    "short_name": "54",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - MISERICÓRDIA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "57",
+    "short_name": "57",
+    "long_name": "RUA DO RAIO - SANTA MARTA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "58",
+    "short_name": "58",
+    "long_name": "RUA DO RAIO - PINHEIRO DO BICHO VIA PONTE NOVA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "59",
+    "short_name": "59",
+    "long_name": "AVENIDA DA LIBERDADE - ESCUDEIROS VIA ESPORÕES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "60",
+    "short_name": "60",
+    "long_name": "AVENIDA DA LIBERDADE - FIGUEIREDO (SOBRADO)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "63",
+    "short_name": "63",
+    "long_name": "RUA 25 DE ABRIL - S. PEDRO D' ESTE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "66",
+    "short_name": "66",
+    "long_name": "CABREIROS - GUALTAR",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "70",
+    "short_name": "70",
+    "long_name": "RUA DO RAIO - TRANDEIRAS VIA PINHEIRO DO BICHO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "72",
+    "short_name": "72",
+    "long_name": "AVENIDA CENTRAL - MONTE DO OURO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "73",
+    "short_name": "73",
+    "long_name": "AVENIDA CENTRAL - NAVARRA/POUSADA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "74",
+    "short_name": "74",
+    "long_name": "CAMÉLIAS - HOSPITAL",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "76",
+    "short_name": "76",
+    "long_name": "AVENIDA DA LIBERDADE - CELEIRÓS VIA PINHEIRO DO BICHO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "80",
+    "short_name": "80",
+    "long_name": "SETE FONTES - ESPÍRITO SANTO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "81",
+    "short_name": "81",
+    "long_name": "AVENIDA CENTRAL - MOÍNHOS VIA ADAÚFE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "83",
+    "short_name": "83",
+    "long_name": "AVENIDA DA LIBERDADE - LAGEOSA/PEDRALVA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "84",
+    "short_name": "84",
+    "long_name": "PRAÇA CONDE DE AGROLONGO - RUÍLHE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "85",
+    "short_name": "85",
+    "long_name": "CIRCUITO URBANO III",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "87",
+    "short_name": "87",
+    "long_name": "ESTAÇÃO CF - HOSPITAL",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "88",
+    "short_name": "88",
+    "long_name": "RUA DO RAIO - ESPINHO/SAMEIRO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "89",
+    "short_name": "89",
+    "long_name": "GONDIZALVES/SEMELHE - NOGUEIRA (BARRAL)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "90",
+    "short_name": "90",
+    "long_name": "PADIM DA GRAÇA - NOGUEIRÓ",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "91",
+    "short_name": "91",
+    "long_name": "PRISCOS - S. PEDRO D' ESTE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "92",
+    "short_name": "92",
+    "long_name": "AVENIDA CENTRAL - MONTE DO OURO/MOINHOS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "93",
+    "short_name": "93",
+    "long_name": "AVENIDA CENTRAL - CUNHA/ARENTIM",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "94",
+    "short_name": "94",
+    "long_name": "PONTE PEDRINHA - MONTÉLIOS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "95",
+    "short_name": "95",
+    "long_name": "MINHO CENTER - NOVA ARCADA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "96",
+    "short_name": "96",
+    "long_name": "HOTEL DE LAMAÇÃES - E.LECLERC",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "97",
+    "short_name": "97",
+    "long_name": "RUA DO RAIO - CELEIRÓS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "98",
+    "short_name": "98",
+    "long_name": "MONTE D' ARCOS - MERELIM S.PEDRO (EB23 CÁVADO)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "99",
+    "short_name": "99",
+    "long_name": "AVENIDA CENTRAL - SANTA LUCRÉCIA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "315",
+    "short_name": "315",
+    "long_name": "AVENIDA CENTRAL - MAZAGAO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "501",
+    "short_name": "501",
+    "long_name": "AVENIDA CENTRAL - PARQUE INDUSTRIAL ADAÚFE (VIA PINTANCINHOS)",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "900",
+    "short_name": "900",
+    "long_name": "AVENIDA CENTRAL - HOSPITAL",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "907",
+    "short_name": "907",
+    "long_name": "MISERICÓRDIA - S. MAMEDE D' ESTE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "911",
+    "short_name": "911",
+    "long_name": "AVENIDA CENTRAL - PADIM DA GRAÇA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "914",
+    "short_name": "914",
+    "long_name": "AVENIDA CENTRAL - PRISCOS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "920",
+    "short_name": "920",
+    "long_name": "AVENIDA CENTRAL - ESCUDEIROS VIA PONTE NOVA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "928",
+    "short_name": "928",
+    "long_name": "AVENIDA CENTRAL - NAVARRA",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "933",
+    "short_name": "933",
+    "long_name": "AVENIDA CENTRAL - CABREIROS",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "935",
+    "short_name": "935",
+    "long_name": "AVENIDA CENTRAL - GUISANDE",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "937",
+    "short_name": "937",
+    "long_name": "AVENIDA CENTRAL - ARENTIM",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "942",
+    "short_name": "942",
+    "long_name": "UNIVERSIDADE MINHO - AVENIDA CENTRAL",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "943",
+    "short_name": "943",
+    "long_name": "ESTAÇÃO CF - UNIVERSIDADE DO MINHO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "945",
+    "short_name": "945",
+    "long_name": "AVENIDA CENTRAL - PONTE DO BICO",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "949",
+    "short_name": "949",
+    "long_name": "AVENIDA CENTRAL - RUÃES",
+    "color": "",
+    "text_color": ""
+  },
+  {
+    "id": "995",
+    "short_name": "995",
+    "long_name": "MINHO CENTER - NOVA ARCADA",
+    "color": "",
+    "text_color": ""
+  }
+]
