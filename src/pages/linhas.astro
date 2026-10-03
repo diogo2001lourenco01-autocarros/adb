@@ -40,6 +40,8 @@ const outras = routes.filter(r => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>AdB – Linhas e Paragens</title>
+    <link href="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script is:inline src="https://cdn.jsdelivr.net/npm/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <style>
       @font-face {
         font-family: 'DINBlack';
@@ -500,6 +502,72 @@ const outras = routes.filter(r => {
         font-size: 14px;
         display: none;
       }
+
+      /* ── VIEW SWITCHER (LISTA vs MAPA) ──────────────────────────── */
+      .view-mode-bar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .view-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        padding: 6px 12px;
+        color: rgba(255, 255, 255, 0.7);
+        font-family: 'DINMedium', Helvetica, Arial, sans-serif;
+        font-size: 12px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+      }
+      .view-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .view-btn.active {
+        background: rgba(2, 124, 183, 0.25);
+        color: #60b4f0;
+        border-color: rgba(2, 124, 183, 0.5);
+        font-family: 'DINBlack', Helvetica, Arial, sans-serif;
+      }
+
+      /* ── MAP CONTAINER ──────────────────────────────────────────── */
+      .route-map-wrap {
+        height: 380px;
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        position: relative;
+        background: #0f1219;
+      }
+      .route-map-canvas {
+        height: 100%;
+        width: 100%;
+      }
+
+      /* ── MAPLIBRE POPUPS & CONTROLS ──────────────────────────────── */
+      .maplibregl-popup-content {
+        background: #1c2030 !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        padding: 8px 12px !important;
+        font-family: 'DINMedium', Helvetica, Arial, sans-serif !important;
+        font-size: 12.5px !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+        border: 1px solid rgba(255,255,255,0.12) !important;
+      }
+      .maplibregl-popup-tip {
+        border-top-color: #1c2030 !important;
+        border-bottom-color: #1c2030 !important;
+      }
+      .maplibregl-popup-close-button {
+        display: none !important;
+      }
     </style>
   </head>
   <body>
@@ -654,16 +722,20 @@ const outras = routes.filter(r => {
         }
       });
 
+      const mapsCache = new Map();
+
       function renderRouteDetails(container, data) {
         if (!data || !data.directions || data.directions.length === 0) {
           container.innerHTML = `<div class="details-loading">Nenhuma informação de paragens disponível.</div>`;
           return;
         }
 
+        const routeId = String(data.route_id);
         const directions = data.directions;
         let activeDir = 0;
+        let currentView = 'list';
 
-        function renderSpine() {
+        function renderView() {
           let html = '';
 
           // If multiple directions, show direction switcher tabs
@@ -686,86 +758,296 @@ const outras = routes.filter(r => {
             html += '</div>';
           }
 
+          // View mode bar (Lista vs Mapa)
+          html += `
+            <div class="view-mode-bar">
+              <button type="button" class="view-btn ${currentView === 'list' ? 'active' : ''}" data-view="list">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                <span>Lista de Paragens</span>
+              </button>
+              <button type="button" class="view-btn ${currentView === 'map' ? 'active' : ''}" data-view="map">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                  <line x1="8" y1="2" x2="8" y2="18"></line>
+                  <line x1="16" y1="6" x2="16" y2="22"></line>
+                </svg>
+                <span>Ver Mapa do Percurso</span>
+              </button>
+            </div>
+          `;
+
           const currentDir = directions[activeDir] || directions[0];
           const stops = currentDir.stops || [];
 
+          // 1. Container da Lista de Paragens
+          html += `<div class="view-panel-list" style="${currentView === 'list' ? '' : 'display:none;'}">`;
           if (stops.length === 0) {
             html += '<div class="details-loading">Sem paragens registadas para este sentido.</div>';
-            container.innerHTML = html;
-            bindDirEvents();
-            return;
+          } else {
+            html += '<div class="spine-container">';
+            html += '<div class="spine-rail"></div>';
+            html += '<div class="spine-stops-list">';
+
+            stops.forEach((stop, index) => {
+              const isFirst = index === 0;
+              const isLast = index === stops.length - 1;
+              const isTerminal = isFirst || isLast;
+              const stopCode = stop.code || stop.id;
+
+              let nodeHtml = '';
+              let terminalTag = '';
+
+              if (isFirst) {
+                nodeHtml = `
+                  <div class="spine-node-terminal-start" title="Terminal de Partida">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                      <circle cx="12" cy="12" r="6"></circle>
+                    </svg>
+                  </div>
+                `;
+                terminalTag = '<span class="terminal-pill start">Partida</span>';
+              } else if (isLast) {
+                nodeHtml = `
+                  <div class="spine-node-terminal-end" title="Terminal de Chegada">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+                      <line x1="4" y1="22" x2="4" y2="15"></line>
+                    </svg>
+                  </div>
+                `;
+                terminalTag = '<span class="terminal-pill end">Término</span>';
+              } else {
+                nodeHtml = '<div class="spine-node-intermediate" title="Paragem Intermédia"></div>';
+              }
+
+              html += `
+                <div class="spine-stop-row ${isTerminal ? 'is-terminal' : 'is-intermediate'}">
+                  <div class="spine-node-wrap">
+                    ${nodeHtml}
+                  </div>
+                  <div class="spine-info">
+                    <div class="spine-name-group">
+                      <span class="spine-name">${stop.name}</span>
+                      ${terminalTag}
+                    </div>
+                    <div class="spine-badges">
+                      ${stopCode ? `<span class="stop-code-badge"><span class="prefix">#</span>${stopCode}</span>` : ''}
+                    </div>
+                  </div>
+                </div>
+              `;
+            });
+
+            html += '</div></div>';
           }
+          html += '</div>';
 
-          html += '<div class="spine-container">';
-          html += '<div class="spine-rail"></div>';
-          html += '<div class="spine-stops-list">';
-
-          stops.forEach((stop, index) => {
-            const isFirst = index === 0;
-            const isLast = index === stops.length - 1;
-            const isTerminal = isFirst || isLast;
-            const stopCode = stop.code || stop.id;
-
-            let nodeHtml = '';
-            let terminalTag = '';
-
-            if (isFirst) {
-              nodeHtml = `
-                <div class="spine-node-terminal-start" title="Terminal de Partida">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="12" r="6"></circle>
-                  </svg>
-                </div>
-              `;
-              terminalTag = '<span class="terminal-pill start">Partida</span>';
-            } else if (isLast) {
-              nodeHtml = `
-                <div class="spine-node-terminal-end" title="Terminal de Chegada">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                    <line x1="4" y1="22" x2="4" y2="15"></line>
-                  </svg>
-                </div>
-              `;
-              terminalTag = '<span class="terminal-pill end">Término</span>';
-            } else {
-              nodeHtml = '<div class="spine-node-intermediate" title="Paragem Intermédia"></div>';
-            }
-
-            html += `
-              <div class="spine-stop-row ${isTerminal ? 'is-terminal' : 'is-intermediate'}">
-                <div class="spine-node-wrap">
-                  ${nodeHtml}
-                </div>
-                <div class="spine-info">
-                  <div class="spine-name-group">
-                    <span class="spine-name">${stop.name}</span>
-                    ${terminalTag}
-                  </div>
-                  <div class="spine-badges">
-                    ${stopCode ? `<span class="stop-code-badge"><span class="prefix">#</span>${stopCode}</span>` : ''}
-                  </div>
-                </div>
+          // 2. Container do Mapa do Percurso
+          html += `
+            <div class="view-panel-map" style="${currentView === 'map' ? '' : 'display:none;'}">
+              <div class="route-map-wrap">
+                <div class="route-map-canvas" id="map-canvas-${routeId}"></div>
               </div>
-            `;
-          });
+            </div>
+          `;
 
-          html += '</div></div>';
           container.innerHTML = html;
-          bindDirEvents();
+          bindEvents();
+
+          if (currentView === 'map') {
+            setTimeout(() => initOrUpdateRouteMap(routeId, currentDir), 60);
+          }
         }
 
-        function bindDirEvents() {
+        function bindEvents() {
+          // Tabs de sentido
           container.querySelectorAll('.dir-tab-btn').forEach(btn => {
             btn.addEventListener('click', (ev) => {
               ev.stopPropagation();
               activeDir = parseInt(btn.getAttribute('data-dir-index'), 10) || 0;
-              renderSpine();
+              renderView();
+            });
+          });
+
+          // Tabs de modo de visualização (Lista vs Mapa)
+          container.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', (ev) => {
+              ev.stopPropagation();
+              currentView = btn.getAttribute('data-view') || 'list';
+              renderView();
             });
           });
         }
 
-        renderSpine();
+        renderView();
+      }
+
+      function initOrUpdateRouteMap(routeId, dirData) {
+        const mapEl = document.getElementById(`map-canvas-${routeId}`);
+        if (!mapEl || !window.maplibregl) return;
+
+        let map = mapsCache.get(routeId);
+        const shapeCoords = dirData.shape || [];
+        const stops = dirData.stops || [];
+
+        const applyData = () => {
+          // 1. Atualizar ou criar camada do traçado (LineString)
+          const lineGeojson = {
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: shapeCoords
+            }
+          };
+
+          if (map.getSource('route-line')) {
+            map.getSource('route-line').setData(lineGeojson);
+          } else {
+            map.addSource('route-line', { type: 'geojson', data: lineGeojson });
+
+            map.addLayer({
+              id: 'route-line-casing',
+              type: 'line',
+              source: 'route-line',
+              paint: {
+                'line-color': '#014365',
+                'line-width': 7,
+                'line-opacity': 0.7
+              }
+            });
+
+            map.addLayer({
+              id: 'route-line-core',
+              type: 'line',
+              source: 'route-line',
+              paint: {
+                'line-color': '#0290d4',
+                'line-width': 4
+              }
+            });
+          }
+
+          // 2. Atualizar ou criar camada das paragens (Points)
+          const stopsGeojson = {
+            type: 'FeatureCollection',
+            features: stops.map((s, idx) => {
+              const isStart = idx === 0;
+              const isEnd = idx === stops.length - 1;
+              return {
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: [s.lon, s.lat]
+                },
+                properties: {
+                  id: s.id,
+                  name: s.name,
+                  isTerminal: isStart || isEnd,
+                  terminalType: isStart ? 'Partida' : (isEnd ? 'Término' : ''),
+                  fillColor: isStart ? '#027cb7' : (isEnd ? '#22c55e' : '#151922'),
+                  strokeColor: isStart ? '#ffffff' : (isEnd ? '#ffffff' : '#0290d4'),
+                  radius: isStart || isEnd ? 7 : 5
+                }
+              };
+            })
+          };
+
+          if (map.getSource('route-stops')) {
+            map.getSource('route-stops').setData(stopsGeojson);
+          } else {
+            map.addSource('route-stops', { type: 'geojson', data: stopsGeojson });
+
+            map.addLayer({
+              id: 'route-stops-circles',
+              type: 'circle',
+              source: 'route-stops',
+              paint: {
+                'circle-radius': ['get', 'radius'],
+                'circle-color': ['get', 'fillColor'],
+                'circle-stroke-width': 2,
+                'circle-stroke-color': ['get', 'strokeColor']
+              }
+            });
+
+            const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
+
+            map.on('mouseenter', 'route-stops-circles', (e) => {
+              map.getCanvas().style.cursor = 'pointer';
+              const coords = e.features[0].geometry.coordinates.slice();
+              const p = e.features[0].properties;
+              const tagHtml = p.terminalType
+                ? `<span style="font-size:10px;padding:2px 6px;background:${p.terminalType === 'Partida' ? '#027cb7' : '#22c55e'};color:#fff;border-radius:3px;margin-left:6px;font-family:'DINBlack';text-transform:uppercase;">${p.terminalType}</span>`
+                : '';
+              popup.setLngLat(coords).setHTML(`
+                <div style="font-family:'DINMedium',sans-serif;line-height:1.35;">
+                  <div style="font-family:'DINBlack';font-size:13px;color:#fff;">${p.name} ${tagHtml}</div>
+                  <div style="font-size:11px;color:#94a3b8;margin-top:3px;">Paragem #${p.id}</div>
+                </div>
+              `).addTo(map);
+            });
+
+            map.on('mouseleave', 'route-stops-circles', () => {
+              map.getCanvas().style.cursor = '';
+              popup.remove();
+            });
+          }
+
+          // 3. Ajustar enquadramento (fitBounds)
+          const allCoords = shapeCoords.length > 0 ? shapeCoords : stops.map(s => [s.lon, s.lat]);
+          if (allCoords.length > 0) {
+            const bounds = allCoords.reduce((acc, coord) => {
+              return [
+                [Math.min(acc[0][0], coord[0]), Math.min(acc[0][1], coord[1])],
+                [Math.max(acc[1][0], coord[0]), Math.max(acc[1][1], coord[1])]
+              ];
+            }, [[allCoords[0][0], allCoords[0][1]], [allCoords[0][0], allCoords[0][1]]]);
+
+            map.fitBounds(bounds, { padding: 36, maxZoom: 15, duration: 600 });
+          }
+        };
+
+        if (!map) {
+          map = new maplibregl.Map({
+            container: mapEl,
+            style: '/api/maptiles/style',
+            center: [-8.426, 41.550],
+            zoom: 12,
+            attributionControl: false
+          });
+          map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+          mapsCache.set(routeId, map);
+
+          map.on('load', applyData);
+        } else {
+          if (map.getContainer() !== mapEl) {
+            map.remove();
+            map = new maplibregl.Map({
+              container: mapEl,
+              style: '/api/maptiles/style',
+              center: [-8.426, 41.550],
+              zoom: 12,
+              attributionControl: false
+            });
+            map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+            mapsCache.set(routeId, map);
+            map.on('load', applyData);
+            return;
+          }
+
+          map.resize();
+          if (map.isStyleLoaded()) {
+            applyData();
+          } else {
+            map.once('load', applyData);
+          }
+        }
       }
 
       // Search filtering
